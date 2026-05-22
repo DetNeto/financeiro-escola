@@ -36,6 +36,16 @@ function getDueStatus(date) {
 
   return "futura";
 }
+function formatRecurrence(type) {
+
+  const labels = {
+    mensal: "Mensal",
+    semanal: "Semanal",
+    anual: "Anual",
+  };
+
+  return labels[type] || type;
+}
   return (
     <div className="bg-slate-800 rounded-2xl overflow-hidden">
 
@@ -92,7 +102,27 @@ function getDueStatus(date) {
             >
 
               <td className="p-4">
+              <div className="flex items-center gap-2">
+
+              <span>
                 {item.description}
+              </span>
+
+              {item.isRecurring && (
+
+                <span className="bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full">
+
+                  🔁 {
+  formatRecurrence(
+    item.recurrenceType
+  )
+}
+
+                </span>
+
+  )}
+
+              </div>
               </td>
 
               <td className="p-4">

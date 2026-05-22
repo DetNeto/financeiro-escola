@@ -52,6 +52,21 @@ export default function MainLayout() {
             Fluxo de Caixa
           </Link>
 
+          <Link
+            to="/analise-financeira"
+            className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 transition"
+          >
+
+            <span>
+              📊
+            </span>
+
+            <span>
+              Análise Financeira
+            </span>
+
+          </Link>
+
         </nav>
       </aside>
 

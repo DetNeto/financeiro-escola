@@ -1,5 +1,6 @@
 import {
   createContext,
+  useContext,
   useEffect,
   useState,
 } from "react";
@@ -12,18 +13,22 @@ const initialData = [
     id: 1,
     description: "Aluguel",
     category: "Estrutura",
-    dueDate: "10/05/2026",
-    value: "R$ 2500",
+    dueDate: "2026-05-10",
+    value: 2500,
     status: "Pendente",
+    type: "despesa",
+    priority: "alta",
   },
 
   {
     id: 2,
     description: "Energia Elétrica",
     category: "Utilidades",
-    dueDate: "12/05/2026",
-    value: "R$ 780",
+    dueDate: "2026-05-12",
+    value: 780,
     status: "Pago",
+    type: "despesa",
+    priority: "media",
   },
 ];
 
@@ -31,17 +36,18 @@ export function FinanceProvider({
   children,
 }) {
 
-  const [contas, setContas] = useState(
-    () => {
+  const [contas, setContas] =
+    useState(() => {
 
       const contasSalvas =
-        localStorage.getItem("contas");
+        localStorage.getItem(
+          "contas"
+        );
 
       return contasSalvas
         ? JSON.parse(contasSalvas)
         : initialData;
-    }
-  );
+    });
 
   useEffect(() => {
 
@@ -52,17 +58,40 @@ export function FinanceProvider({
 
   }, [contas]);
 
+  function formatCurrency(
+    value
+  ) {
+
+    return Number(
+      value
+    ).toLocaleString(
+      "pt-BR",
+      {
+        style: "currency",
+        currency: "BRL",
+      }
+    );
+  }
+
   return (
 
     <FinanceContext.Provider
       value={{
         contas,
         setContas,
+        formatCurrency,
       }}
     >
 
       {children}
 
     </FinanceContext.Provider>
+  );
+}
+
+export function useFinance() {
+
+  return useContext(
+    FinanceContext
   );
 }
