@@ -14,6 +14,8 @@ const initialData = [
     description: "Aluguel",
     category: "Estrutura",
     dueDate: "2026-05-10",
+    month: 5,
+    year: 2026,
     value: 2500,
     status: "Pendente",
     type: "despesa",
@@ -25,6 +27,8 @@ const initialData = [
     description: "Energia Elétrica",
     category: "Utilidades",
     dueDate: "2026-05-12",
+    month: 5,
+    year: 2026,
     value: 780,
     status: "Pago",
     type: "despesa",
@@ -49,6 +53,21 @@ export function FinanceProvider({
         : initialData;
     });
 
+  const [
+    closedMonths,
+    setClosedMonths
+  ] = useState(() => {
+
+    const saved =
+      localStorage.getItem(
+        "closedMonths"
+      );
+
+    return saved
+      ? JSON.parse(saved)
+      : [];
+  });
+
   useEffect(() => {
 
     localStorage.setItem(
@@ -57,6 +76,17 @@ export function FinanceProvider({
     );
 
   }, [contas]);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "closedMonths",
+      JSON.stringify(
+        closedMonths
+      )
+    );
+
+  }, [closedMonths]);
 
   function formatCurrency(
     value
@@ -73,19 +103,127 @@ export function FinanceProvider({
     );
   }
 
+  function getMonthKey(
+    month,
+    year
+  ) {
+
+    return `${year}-${String(
+      month
+    ).padStart(2, "0")}`;
+  }
+
+  function isMonthClosed(
+    month,
+    year
+  ) {
+
+    const key =
+      getMonthKey(
+        month,
+        year
+      );
+
+    return closedMonths.includes(
+      key
+    );
+  }
+
+  function closeMonth(
+    month,
+    year
+  ) {
+
+    const key =
+      getMonthKey(
+        month,
+        year
+      );
+
+    if (
+      closedMonths.includes(
+        key
+      )
+    ) {
+      return;
+    }
+
+    setClosedMonths([
+      ...closedMonths,
+      key,
+    ]);
+  }
+
+  function openMonth(
+    month,
+    year
+  ) {
+
+    const key =
+      getMonthKey(
+        month,
+        year
+      );
+
+    const updated =
+      closedMonths.filter(
+        (item) =>
+          item !== key
+      );
+
+    setClosedMonths(
+      updated
+    );
+  }
+
+  function getCurrentMonthData() {
+
+    const now =
+      new Date();
+
+    const month =
+      now.getMonth() + 1;
+
+    const year =
+      now.getFullYear();
+
+    return contas.filter(
+      (conta) =>
+        conta.month ===
+          month &&
+        conta.year ===
+          year
+    );
+  }
+
   return (
 
     <FinanceContext.Provider
       value={{
+
         contas,
         setContas,
+
+        closedMonths,
+
+        closeMonth,
+        openMonth,
+
+        isMonthClosed,
+
         formatCurrency,
+
+        getMonthKey,
+
+        getCurrentMonthData,
+
       }}
     >
 
       {children}
 
     </FinanceContext.Provider>
+
   );
 }
 

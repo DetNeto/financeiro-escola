@@ -1,9 +1,11 @@
 import {
   useContext,
+  useEffect,
   useState,
 } from "react";
 
-import FinancialTable from "../components/FinancialTable";
+import FinancialTable
+  from "../components/FinancialTable";
 
 import {
   FinanceContext,
@@ -11,75 +13,135 @@ import {
 
 export default function ContasPagar() {
 
-  const expenseCategories = [
-  "Folha Salarial",
-  "Aluguel",
-  "Combustível",
-  "Energia",
-  "Água",
-  "Internet",
-  "Impostos",
-  "Prestadores de Serviço",
-  "Alimentação",
-  "Material Escolar",
-  "Limpeza",
-  "Manutenção",
-  "Outros",
-];
+  const {
+    contas,
+    setContas,
+    isMonthClosed,
+  } = useContext(
+    FinanceContext
+  );
 
-const revenueCategories = [
-  "Mensalidades",
-  "Matrículas",
-  "Eventos",
-  "Atividades Extras",
-  "Reembolsos",
-  "Outros",
-];
-  const [description, setDescription] =
-    useState("");
+  const defaultExpenseCategories = [
+    "Folha Salarial",
+    "Aluguel",
+    "Combustível",
+    "Energia",
+    "Água",
+    "Internet",
+    "Impostos",
+    "Prestadores de Serviço",
+    "Alimentação",
+    "Material Escolar",
+    "Limpeza",
+    "Manutenção",
+    "Outros",
+  ];
 
-  const [category, setCategory] =
-    useState("");
-    const [
-  revenueType,
-  setRevenueType
-] = useState("mensalidade");
-
-  const [dueDate, setDueDate] =
-    useState("");
-
-  const [value, setValue] =
-    useState("");
-
-  const [editingId, setEditingId] =
-    useState(null);
-
-  const [type, setType] =
-    useState("despesa");
-  
-  const [
-  priority,
-  setPriority
-] = useState("media");  
-
-  const [isRecurring, setIsRecurring] =
-    useState(false);
+  const defaultRevenueCategories = [
+    "Mensalidades",
+    "Matrículas",
+    "Eventos",
+    "Atividades Extras",
+    "Reembolsos",
+    "Outros",
+  ];
 
   const [
-    recurrenceType,
-    setRecurrenceType
-  ] = useState("mensal");
+    expenseCategories,
+    setExpenseCategories
+  ] = useState(() => {
+
+    const saved =
+      localStorage.getItem(
+        "expenseCategories"
+      );
+
+    return saved
+      ? JSON.parse(saved)
+      : defaultExpenseCategories;
+  });
 
   const [
-    recurrenceRule,
-    setRecurrenceRule
-  ] = useState("dia_fixo");
+    revenueCategories,
+    setRevenueCategories
+  ] = useState(() => {
 
-  const [search, setSearch] =
-    useState("");
+    const saved =
+      localStorage.getItem(
+        "revenueCategories"
+      );
 
-  const [filterType, setFilterType] =
-    useState("todos");
+    return saved
+      ? JSON.parse(saved)
+      : defaultRevenueCategories;
+  });
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "expenseCategories",
+      JSON.stringify(
+        expenseCategories
+      )
+    );
+
+  }, [expenseCategories]);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "revenueCategories",
+      JSON.stringify(
+        revenueCategories
+      )
+    );
+
+  }, [revenueCategories]);
+
+  const [
+    description,
+    setDescription
+  ] = useState("");
+
+  const [
+    category,
+    setCategory
+  ] = useState("");
+
+  const [
+    dueDate,
+    setDueDate
+  ] = useState("");
+
+  const [
+    value,
+    setValue
+  ] = useState("");
+
+  const [
+    type,
+    setType
+  ] = useState("despesa");
+
+  const [
+    priority,
+    setPriority
+  ] = useState("media");
+
+  const [
+    editingId,
+    setEditingId
+  ] = useState(null);
+
+  const [
+    search,
+    setSearch
+  ] = useState("");
+
+  const [
+    filterType,
+    setFilterType
+  ] = useState("todos");
 
   const [
     filterStatus,
@@ -87,14 +149,51 @@ const revenueCategories = [
   ] = useState("todos");
 
   const [
-  quickFilter,
-  setQuickFilter
-] = useState("todos");
+    quickFilter,
+    setQuickFilter
+  ] = useState("todos");
 
-  const {
-    contas,
-    setContas,
-  } = useContext(FinanceContext);
+  const [
+    isRecurring,
+    setIsRecurring
+  ] = useState(false);
+
+  const [
+    recurrenceType,
+    setRecurrenceType
+  ] = useState("mensal");
+
+  function normalizeText(text) {
+
+    return text
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      );
+  }
+
+  function resetForm() {
+
+    setDescription("");
+    setCategory("");
+    setDueDate("");
+    setValue("");
+
+    setType("despesa");
+
+    setPriority("media");
+
+    setIsRecurring(false);
+
+    setRecurrenceType(
+      "mensal"
+    );
+
+    setEditingId(null);
+  }
 
   function handleAddConta() {
 
@@ -107,86 +206,297 @@ const revenueCategories = [
       return;
     }
 
+    const date =
+      new Date(dueDate);
+
+    const month =
+      date.getMonth() + 1;
+
+    const year =
+      date.getFullYear();
+
+    if (
+      isMonthClosed(
+        month,
+        year
+      )
+    ) {
+
+      alert(
+        "Este mês está fechado."
+      );
+
+      return;
+    }
+
+    const contaData = {
+      description,
+      category,
+      dueDate,
+      month,
+      year,
+      value: Number(value),
+      type,
+      priority,
+      isRecurring,
+      recurrenceType,
+    };
+
     if (editingId) {
 
-      const contasAtualizadas =
+      const updated =
         contas.map((conta) => {
 
           if (
-            conta.id === editingId
+            conta.id ===
+            editingId
           ) {
 
             return {
               ...conta,
-              description,
-              category,
-              dueDate,
-              value: Number(value),
-              type,
-              isRecurring,
-              recurrenceType,
-              recurrenceRule,
+              ...contaData,
             };
           }
 
           return conta;
         });
 
-      setContas(contasAtualizadas);
-
-      setEditingId(null);
+      setContas(updated);
 
     } else {
 
       const novaConta = {
         id: Date.now(),
-        description,
-        category,
-        dueDate,
-        value: Number(value),
         status: "Pendente",
-        type,
-        isRecurring,
-        recurrenceType,
-        recurrenceRule,
-        revenueType,
-        priority,
+        ...contaData,
       };
 
       setContas([
         ...contas,
-        novaConta
+        novaConta,
       ]);
     }
 
-    setDescription("");
-    setCategory("");
-    setDueDate("");
-    setValue("");
+    resetForm();
+  }
 
-    setType("despesa");
+  function generateNextRecurring(
+    conta
+  ) {
 
-    setIsRecurring(false);
+    const shouldGenerate =
+      window.confirm(
+        "Deseja gerar a próxima recorrência?"
+      );
 
-    setRecurrenceType("mensal");
+    if (!shouldGenerate) {
+      return;
+    }
 
-    setRecurrenceRule("dia_fixo");
+    const nextDate =
+      new Date(
+        conta.dueDate
+      );
+
+    if (
+      conta.recurrenceType ===
+      "mensal"
+    ) {
+
+      nextDate.setMonth(
+        nextDate.getMonth() + 1
+      );
+
+    } else if (
+      conta.recurrenceType ===
+      "semanal"
+    ) {
+
+      nextDate.setDate(
+        nextDate.getDate() + 7
+      );
+
+    } else if (
+      conta.recurrenceType ===
+      "anual"
+    ) {
+
+      nextDate.setFullYear(
+        nextDate.getFullYear() + 1
+      );
+    }
+
+    const nextMonth =
+      nextDate.getMonth() + 1;
+
+    const nextYear =
+      nextDate.getFullYear();
+
+    const nextDueDate =
+      nextDate
+        .toISOString()
+        .split("T")[0];
+
+    const alreadyExists =
+      contas.some(
+        (item) => {
+
+          return (
+            item.description ===
+              conta.description &&
+            item.dueDate ===
+              nextDueDate
+          );
+        }
+      );
+
+    if (alreadyExists) {
+
+      alert(
+        "A próxima recorrência já existe."
+      );
+
+      return;
+    }
+
+    const newConta = {
+      ...conta,
+      id: Date.now(),
+      dueDate:
+        nextDueDate,
+      month:
+        nextMonth,
+      year:
+        nextYear,
+      status:
+        "Pendente",
+    };
+
+    setContas(
+      (prev) => [
+        ...prev,
+        newConta,
+      ]
+    );
+  }
+
+  function handleToggleStatus(id) {
+
+    const conta =
+      contas.find(
+        (item) =>
+          item.id === id
+      );
+
+    if (!conta) {
+      return;
+    }
+
+    if (
+      isMonthClosed(
+        conta.month,
+        conta.year
+      )
+    ) {
+
+      alert(
+        "Este mês está fechado."
+      );
+
+      return;
+    }
+
+    const updated =
+      contas.map((conta) => {
+
+        if (
+          conta.id === id
+        ) {
+
+          const newStatus =
+            conta.status ===
+            "Pago"
+              ? "Pendente"
+              : "Pago";
+
+          if (
+            newStatus ===
+              "Pago" &&
+            conta.isRecurring
+          ) {
+
+            generateNextRecurring(
+              conta
+            );
+          }
+
+          return {
+            ...conta,
+            status:
+              newStatus,
+          };
+        }
+
+        return conta;
+      });
+
+    setContas(updated);
   }
 
   function handleDeleteConta(id) {
 
-    const novasContas =
+    const conta =
+      contas.find(
+        (item) =>
+          item.id === id
+      );
+
+    if (!conta) {
+      return;
+    }
+
+    if (
+      isMonthClosed(
+        conta.month,
+        conta.year
+      )
+    ) {
+
+      alert(
+        "Este mês está fechado."
+      );
+
+      return;
+    }
+
+    const updated =
       contas.filter(
         (conta) =>
           conta.id !== id
       );
 
-    setContas(novasContas);
+    setContas(updated);
   }
 
   function handleEditConta(conta) {
 
-    setEditingId(conta.id);
+    if (
+      isMonthClosed(
+        conta.month,
+        conta.year
+      )
+    ) {
+
+      alert(
+        "Este mês está fechado."
+      );
+
+      return;
+    }
+
+    setEditingId(
+      conta.id
+    );
 
     setDescription(
       conta.description
@@ -208,114 +518,101 @@ const revenueCategories = [
       conta.type
     );
 
+    setPriority(
+      conta.priority
+    );
+
     setIsRecurring(
-      conta.isRecurring || false
+      conta.isRecurring ||
+      false
     );
 
     setRecurrenceType(
       conta.recurrenceType ||
       "mensal"
     );
-
-    setRecurrenceRule(
-      conta.recurrenceRule ||
-      "dia_fixo"
-    );
   }
 
-  function handleToggleStatus(id) {
+  const filteredContas =
+    contas
+      .filter((conta) => {
 
-    const contasAtualizadas =
-      contas.map((conta) => {
+        const matchesSearch =
+          conta.description
+            .toLowerCase()
+            .includes(
+              search.toLowerCase()
+            );
 
-        if (conta.id === id) {
+        const matchesType =
+          filterType === "todos"
+            ? true
+            : conta.type ===
+              filterType;
 
-          return {
-            ...conta,
-            status:
-              conta.status === "Pago"
-                ? "Pendente"
-                : "Pago",
-          };
-        }
+        const matchesStatus =
+          filterStatus === "todos"
+            ? true
+            : conta.status ===
+              filterStatus;
 
-        return conta;
+        const matchesQuickFilter =
+          quickFilter === "todos"
+
+            ? true
+
+            : quickFilter ===
+              "alta"
+
+            ? conta.priority ===
+              "alta"
+
+            : quickFilter ===
+              "vencidas"
+
+            ? conta.status !==
+                "Pago" &&
+              new Date(
+                conta.dueDate
+              ) < new Date()
+
+            : true;
+
+        return (
+          matchesSearch &&
+          matchesType &&
+          matchesStatus &&
+          matchesQuickFilter
+        );
+      })
+      .sort((a, b) => {
+
+        return (
+          new Date(
+            a.dueDate
+          ) -
+          new Date(
+            b.dueDate
+          )
+        );
       });
-
-    setContas(contasAtualizadas);
-  }
-
-  const filteredContas = contas
-    .filter((conta) => {
-
-      const matchesQuickFilter =
-  quickFilter === "todos"
-    ? true
-
-    : quickFilter ===
-      "alta_prioridade"
-    ? conta.priority ===
-      "alta"
-
-    : quickFilter ===
-      "recorrentes"
-    ? conta.isRecurring
-
-    : quickFilter ===
-      "vencidas"
-    ? conta.status !== "Pago" &&
-      new Date(
-        conta.dueDate
-      ) < new Date()
-
-    : true;
-
-      const matchesSearch =
-        conta.description
-          .toLowerCase()
-          .includes(
-            search.toLowerCase()
-          );
-
-      const matchesType =
-        filterType === "todos"
-          ? true
-          : conta.type ===
-            filterType;
-
-      const matchesStatus =
-        filterStatus === "todos"
-          ? true
-          : conta.status ===
-            filterStatus;
-
-      return (
-        matchesSearch &&
-        matchesType &&
-        matchesStatus &&
-        matchesQuickFilter
-      );
-    })
-    .sort((a, b) => {
-
-      return (
-        new Date(a.dueDate) -
-        new Date(b.dueDate)
-      );
-    });
 
   return (
 
-    <div>
+    <div className="min-h-screen text-white">
 
-      <h1 className="text-4xl font-bold mb-8">
+      <h1 className="text-5xl font-bold mb-10">
+
         Movimentações Financeiras
+
       </h1>
 
-      <div className="bg-slate-800 p-6 rounded-2xl mb-8">
+      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl mb-8">
 
-        <h2 className="text-2xl font-semibold mb-6">
-          Nova Conta
+        <h2 className="text-2xl font-bold mb-6">
+
+          Nova Movimentação
+
         </h2>
 
         <div className="grid grid-cols-4 gap-4">
@@ -329,40 +626,52 @@ const revenueCategories = [
                 e.target.value
               )
             }
-            className="bg-slate-700 p-3 rounded-xl outline-none"
+            className="
+              bg-zinc-800
+              border border-zinc-700
+              rounded-xl
+              px-4 py-4
+              outline-none
+            "
           />
 
           <select
-  value={category}
-  onChange={(e) =>
-    setCategory(
-      e.target.value
-    )
-  }
-  className="bg-slate-700 p-3 rounded-xl outline-none"
->
+            value={category}
+            onChange={(e) =>
+              setCategory(
+                e.target.value
+              )
+            }
+            className="
+              bg-zinc-800
+              border border-zinc-700
+              rounded-xl
+              px-4 py-4
+              outline-none
+            "
+          >
 
-  <option value="">
-    Selecione uma categoria
-  </option>
+            <option value="">
+              Categoria
+            </option>
 
-  {(type === "despesa"
-    ? expenseCategories
-    : revenueCategories
-  ).map((categoria) => (
+            {(type === "despesa"
+              ? expenseCategories
+              : revenueCategories
+            ).map((categoria) => (
 
-    <option
-      key={categoria}
-      value={categoria}
-    >
+              <option
+                key={categoria}
+                value={categoria}
+              >
 
-      {categoria}
+                {categoria}
 
-    </option>
+              </option>
 
-  ))}
+            ))}
 
-</select>
+          </select>
 
           <input
             type="date"
@@ -372,7 +681,13 @@ const revenueCategories = [
                 e.target.value
               )
             }
-            className="bg-slate-700 p-3 rounded-xl outline-none"
+            className="
+              bg-zinc-800
+              border border-zinc-700
+              rounded-xl
+              px-4 py-4
+              outline-none
+            "
           />
 
           <input
@@ -384,93 +699,88 @@ const revenueCategories = [
                 e.target.value
               )
             }
-            className="bg-slate-700 p-3 rounded-xl outline-none"
+            className="
+              bg-zinc-800
+              border border-zinc-700
+              rounded-xl
+              px-4 py-4
+              outline-none
+            "
           />
 
         </div>
 
-        <select
-          value={type}
-          onChange={(e) =>
-            setType(
-              e.target.value
-            )
-          }
-          className="bg-slate-700 p-3 rounded-xl outline-none mt-4"
-        >
+        <div className="grid grid-cols-4 gap-4 mt-4">
 
-          <option value="despesa">
-            Despesa
-          </option>
+          <select
+            value={type}
+            onChange={(e) =>
+              setType(
+                e.target.value
+              )
+            }
+            className="
+              bg-zinc-800
+              border border-zinc-700
+              rounded-xl
+              px-4 py-4
+              outline-none
+            "
+          >
 
-          <option value="receita">
-            Receita
-          </option>
+            <option value="despesa">
+              Despesa
+            </option>
 
-        </select>
-        <select
-  value={priority}
-  onChange={(e) =>
-    setPriority(
-      e.target.value
-    )
-  }
-  className="bg-slate-700 p-3 rounded-xl outline-none mt-4 ml-4"
->
+            <option value="receita">
+              Receita
+            </option>
 
-  <option value="alta">
-    🔴 Prioridade Alta
-  </option>
+          </select>
 
-  <option value="media">
-    🟡 Prioridade Média
-  </option>
+          <select
+            value={priority}
+            onChange={(e) =>
+              setPriority(
+                e.target.value
+              )
+            }
+            className="
+              bg-zinc-800
+              border border-zinc-700
+              rounded-xl
+              px-4 py-4
+              outline-none
+            "
+          >
 
-  <option value="baixa">
-    🔵 Prioridade Baixa
-  </option>
+            <option value="alta">
+              🔴 Alta
+            </option>
 
-</select>
+            <option value="media">
+              🟡 Média
+            </option>
 
-        {type === "receita" && (
+            <option value="baixa">
+              🔵 Baixa
+            </option>
 
-  <select
-    value={revenueType}
-    onChange={(e) =>
-      setRevenueType(
-        e.target.value
-      )
-    }
-    className="bg-slate-700 p-3 rounded-xl outline-none mt-4 ml-4"
-  >
+          </select>
 
-    <option value="mensalidade">
-      Mensalidade
-    </option>
-
-    <option value="extra">
-      Receita Extra
-    </option>
-
-    <option value="reembolso">
-      Reembolso
-    </option>
-
-    <option value="outros">
-      Outros
-    </option>
-
-  </select>
-
-)}
-
-        <div className="mt-4">
-
-          <label className="flex items-center gap-3">
+          <label className="
+            flex items-center gap-3
+            bg-zinc-800
+            border border-zinc-700
+            rounded-xl
+            px-4 py-4
+          ">
 
             <input
               type="checkbox"
-              checked={isRecurring}
+              checked={
+                isRecurring
+              }
               onChange={(e) =>
                 setIsRecurring(
                   e.target.checked
@@ -478,65 +788,43 @@ const revenueCategories = [
               }
             />
 
-            <span>
-              Conta recorrente
-            </span>
+            Conta Recorrente
 
           </label>
 
           {isRecurring && (
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <select
+              value={
+                recurrenceType
+              }
+              onChange={(e) =>
+                setRecurrenceType(
+                  e.target.value
+                )
+              }
+              className="
+                bg-zinc-800
+                border border-zinc-700
+                rounded-xl
+                px-4 py-4
+                outline-none
+              "
+            >
 
-              <select
-                value={recurrenceType}
-                onChange={(e) =>
-                  setRecurrenceType(
-                    e.target.value
-                  )
-                }
-                className="bg-slate-700 p-3 rounded-xl outline-none"
-              >
+              <option value="mensal">
+                Mensal
+              </option>
 
-                <option value="mensal">
-                  Mensal
-                </option>
+              <option value="semanal">
+                Semanal
+              </option>
 
-                <option value="semanal">
-                  Semanal
-                </option>
+              <option value="anual">
+                Anual
+              </option>
 
-                <option value="anual">
-                  Anual
-                </option>
-
-              </select>
-
-              <select
-                value={recurrenceRule}
-                onChange={(e) =>
-                  setRecurrenceRule(
-                    e.target.value
-                  )
-                }
-                className="bg-slate-700 p-3 rounded-xl outline-none"
-              >
-
-                <option value="dia_fixo">
-                  Dia fixo
-                </option>
-
-                <option value="dia_util">
-                  Dia útil
-                </option>
-
-                <option value="quinto_dia_util">
-                  5º dia útil
-                </option>
-
-              </select>
-
-            </div>
+            </select>
 
           )}
 
@@ -544,7 +832,15 @@ const revenueCategories = [
 
         <button
           onClick={handleAddConta}
-          className="mt-6 bg-blue-600 hover:bg-blue-500 px-5 py-3 rounded-xl font-semibold transition"
+          className="
+            mt-6
+            bg-blue-600
+            hover:bg-blue-500
+            px-6 py-4
+            rounded-xl
+            font-semibold
+            transition-all
+          "
         >
 
           {editingId
@@ -555,130 +851,14 @@ const revenueCategories = [
 
       </div>
 
-      <div className="bg-slate-800 p-6 rounded-2xl mb-8">
-
-        <h2 className="text-2xl font-semibold mb-6">
-          Filtros
-        </h2>
-
-        <div className="flex gap-3 mb-6 flex-wrap">
-
-          <button
-            onClick={() =>
-              setQuickFilter(
-                "todos"
-              )
-            }
-            className="bg-slate-700 px-4 py-2 rounded-xl"
-          >
-            Todos
-          </button>
-
-          <button
-            onClick={() =>
-              setQuickFilter(
-                "alta_prioridade"
-              )
-            }
-            className="bg-red-500/20 border border-red-500 px-4 py-2 rounded-xl"
-          >
-            🔴 Alta Prioridade
-          </button>
-
-          <button
-            onClick={() =>
-              setQuickFilter(
-                "recorrentes"
-              )
-            }
-            className="bg-purple-500/20 border border-purple-500 px-4 py-2 rounded-xl"
-          >
-            🔁 Recorrentes
-          </button>
-
-          <button
-            onClick={() =>
-              setQuickFilter(
-                "vencidas"
-              )
-            }
-            className="bg-yellow-500/20 border border-yellow-500 px-4 py-2 rounded-xl"
-          >
-            📅 Vencidas
-          </button>
-
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-
-          <input
-            type="text"
-            placeholder="Buscar descrição..."
-            value={search}
-            onChange={(e) =>
-              setSearch(
-                e.target.value
-              )
-            }
-            className="bg-slate-700 p-3 rounded-xl outline-none"
-          />
-
-          <select
-            value={filterType}
-            onChange={(e) =>
-              setFilterType(
-                e.target.value
-              )
-            }
-            className="bg-slate-700 p-3 rounded-xl outline-none"
-          >
-
-            <option value="todos">
-              Todos os tipos
-            </option>
-
-            <option value="receita">
-              Receitas
-            </option>
-
-            <option value="despesa">
-              Despesas
-            </option>
-
-          </select>
-
-          <select
-            value={filterStatus}
-            onChange={(e) =>
-              setFilterStatus(
-                e.target.value
-              )
-            }
-            className="bg-slate-700 p-3 rounded-xl outline-none"
-          >
-
-            <option value="todos">
-              Todos os status
-            </option>
-
-            <option value="Pago">
-              Pago
-            </option>
-
-            <option value="Pendente">
-              Pendente
-            </option>
-
-          </select>
-
-        </div>
-
-      </div>
-
       <FinancialTable
         data={filteredContas}
-        onDelete={handleDeleteConta}
-        onEdit={handleEditConta}
+        onDelete={
+          handleDeleteConta
+        }
+        onEdit={
+          handleEditConta
+        }
         onToggleStatus={
           handleToggleStatus
         }

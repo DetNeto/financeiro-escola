@@ -3,76 +3,130 @@ import {
   Wallet,
   Receipt,
   BadgeDollarSign,
+  ChartColumn,
 } from "lucide-react";
 
-import { Link, Outlet } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+} from "react-router-dom";
 
 export default function MainLayout() {
+
+  const navItemClass =
+    ({ isActive }) => `
+      flex items-center gap-4
+      px-4 py-3
+      rounded-xl
+      transition-all duration-200
+      border
+
+      ${
+        isActive
+          ? `
+            bg-zinc-800
+            border-zinc-700
+            text-white
+          `
+          : `
+            bg-transparent
+            border-transparent
+            text-zinc-400
+            hover:bg-zinc-900
+            hover:border-zinc-800
+            hover:text-white
+          `
+      }
+    `;
+
   return (
-    <div className="flex h-screen bg-slate-900 text-white">
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-950 border-r border-slate-800 p-6">
+    <div className="flex min-h-screen bg-zinc-950 text-white">
 
-        <h1 className="text-2xl font-bold mb-10">
+      <aside className="w-72 bg-zinc-950 border-r border-zinc-800 p-6">
+
+        <h1 className="text-3xl font-black tracking-tight mb-12">
+
           Financeiro Escola
+
         </h1>
 
-        <nav className="space-y-4">
+        <nav className="space-y-3">
 
-          <Link
+          <NavLink
             to="/"
-            className="flex items-center gap-3 w-full p-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition"
+            end
+            className={navItemClass}
           >
+
             <LayoutDashboard size={20} />
-            Dashboard
-          </Link>
-
-          <Link
-            to="/contas-pagar"
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-800 transition"
-          >
-            <Wallet size={20} />
-            Movimentações
-          </Link>
-
-          <Link
-            to="/contas-receber"
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-800 transition"
-          >
-            <Receipt size={20} />
-            Contas a Receber
-          </Link>
-
-          <Link
-            to="/fluxo-caixa"
-            className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-800 transition"
-          >
-            <BadgeDollarSign size={20} />
-            Fluxo de Caixa
-          </Link>
-
-          <Link
-            to="/analise-financeira"
-            className="flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800 transition"
-          >
 
             <span>
-              📊
+              Dashboard
             </span>
+
+          </NavLink>
+
+          <NavLink
+            to="/contas-pagar"
+            className={navItemClass}
+          >
+
+            <Wallet size={20} />
+
+            <span>
+              Movimentações
+            </span>
+
+          </NavLink>
+
+          <NavLink
+            to="/contas-receber"
+            className={navItemClass}
+          >
+
+            <Receipt size={20} />
+
+            <span>
+              Contas a Receber
+            </span>
+
+          </NavLink>
+
+          <NavLink
+            to="/fluxo-caixa"
+            className={navItemClass}
+          >
+
+            <BadgeDollarSign size={20} />
+
+            <span>
+              Fluxo de Caixa
+            </span>
+
+          </NavLink>
+
+          <NavLink
+            to="/analise-financeira"
+            className={navItemClass}
+          >
+
+            <ChartColumn size={20} />
 
             <span>
               Análise Financeira
             </span>
 
-          </Link>
+          </NavLink>
 
         </nav>
+
       </aside>
 
-      {/* Conteúdo */}
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 overflow-auto p-8">
+
         <Outlet />
+
       </main>
 
     </div>
