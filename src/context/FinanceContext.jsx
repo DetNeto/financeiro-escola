@@ -2,39 +2,32 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
 export const FinanceContext =
   createContext();
 
-const initialData = [
-  {
-    id: 1,
-    description: "Aluguel",
-    category: "Estrutura",
-    dueDate: "2026-05-10",
-    month: 5,
-    year: 2026,
-    value: 2500,
-    status: "Pendente",
-    type: "despesa",
-    priority: "alta",
-  },
+const defaultCategories = [
 
-  {
-    id: 2,
-    description: "Energia Elétrica",
-    category: "Utilidades",
-    dueDate: "2026-05-12",
-    month: 5,
-    year: 2026,
-    value: 780,
-    status: "Pago",
-    type: "despesa",
-    priority: "media",
-  },
+  "Folha Salarial",
+  "Aluguel",
+  "Combustível",
+  "Energia",
+  "Água",
+  "Internet",
+  "Impostos",
+  "Prestadores de Serviço",
+  "Alimentação",
+  "Material Escolar",
+  "Limpeza",
+  "Manutenção",
+  "Mensalidades",
+  "Outros",
 ];
+
+const initialData = [];
 
 export function FinanceProvider({
   children,
@@ -43,30 +36,61 @@ export function FinanceProvider({
   const [contas, setContas] =
     useState(() => {
 
-      const contasSalvas =
+      const saved =
         localStorage.getItem(
           "contas"
         );
 
-      return contasSalvas
-        ? JSON.parse(contasSalvas)
+      return saved
+        ? JSON.parse(saved)
         : initialData;
     });
 
-  const [
-    closedMonths,
-    setClosedMonths
-  ] = useState(() => {
+  const [categories, setCategories] =
+    useState(() => {
 
-    const saved =
-      localStorage.getItem(
-        "closedMonths"
+      const saved =
+        localStorage.getItem(
+          "categories"
+        );
+
+      return saved
+        ? JSON.parse(saved)
+        : defaultCategories;
+    });
+
+  const [selectedMonth, setSelectedMonth] =
+    useState(() => {
+
+      const today =
+        new Date();
+
+      return (
+        today.getMonth() + 1
       );
+    });
 
-    return saved
-      ? JSON.parse(saved)
-      : [];
-  });
+  const [selectedYear, setSelectedYear] =
+    useState(() => {
+
+      const today =
+        new Date();
+
+      return today.getFullYear();
+    });
+
+  const [closedMonths, setClosedMonths] =
+    useState(() => {
+
+      const saved =
+        localStorage.getItem(
+          "closedMonths"
+        );
+
+      return saved
+        ? JSON.parse(saved)
+        : [];
+    });
 
   useEffect(() => {
 
@@ -80,6 +104,15 @@ export function FinanceProvider({
   useEffect(() => {
 
     localStorage.setItem(
+      "categories",
+      JSON.stringify(categories)
+    );
+
+  }, [categories]);
+
+  useEffect(() => {
+
+    localStorage.setItem(
       "closedMonths",
       JSON.stringify(
         closedMonths
@@ -87,6 +120,116 @@ export function FinanceProvider({
     );
 
   }, [closedMonths]);
+
+  function normalizeText(text) {
+
+    return text
+      .normalize("NFD")
+      .replace(
+        /[\u0300-\u036f]/g,
+        ""
+      )
+      .toLowerCase()
+      .trim();
+  }
+
+  function addCategory(
+    newCategory
+  ) {
+
+    const normalizedNew =
+      normalizeText(
+        newCategory
+      );
+
+    const alreadyExists =
+      categories.some(
+        (item) => {
+
+          return (
+            normalizeText(
+              item
+            ) ===
+            normalizedNew
+          );
+        }
+      );
+
+    if (alreadyExists) {
+
+      return {
+        success: false,
+        message:
+          "Categoria já existe.",
+      };
+    }
+
+    const withoutOthers =
+      categories.filter(
+        (item) =>
+          item !== "Outros"
+      );
+
+    const updated = [
+
+      ...withoutOthers,
+
+      newCategory,
+
+      "Outros",
+    ];
+
+    setCategories(updated);
+
+    return {
+      success: true,
+    };
+  }
+
+  function removeCategory(
+    categoryToRemove
+  ) {
+
+    const linkedContas =
+      contas.some(
+        (item) =>
+          item.category ===
+          categoryToRemove
+      );
+
+    if (linkedContas) {
+
+      return {
+        success: false,
+        message:
+          "Existem movimentações usando esta categoria.",
+      };
+    }
+
+    if (
+      categoryToRemove ===
+      "Outros"
+    ) {
+
+      return {
+        success: false,
+        message:
+          "A categoria 'Outros' não pode ser removida.",
+      };
+    }
+
+    setCategories((prev) =>
+      prev.filter(
+        (item) =>
+          item !==
+          categoryToRemove
+      )
+    );
+
+    return {
+      success: true,
+    };
+  }
 
   function formatCurrency(
     value
@@ -103,14 +246,57 @@ export function FinanceProvider({
     );
   }
 
-  function getMonthKey(
+  function closeMonth(
     month,
     year
   ) {
 
-    return `${year}-${String(
-      month
-    ).padStart(2, "0")}`;
+    const exists =
+      closedMonths.some(
+        (item) => {
+
+          return (
+            item.month ===
+              month &&
+            item.year ===
+              year
+          );
+        }
+      );
+
+    if (exists) {
+      return;
+    }
+
+    setClosedMonths((prev) => [
+
+      ...prev,
+
+      {
+        month,
+        year,
+      },
+    ]);
+  }
+
+  function reopenMonth(
+    month,
+    year
+  ) {
+
+    setClosedMonths((prev) =>
+      prev.filter(
+        (item) => {
+
+          return !(
+            item.month ===
+              month &&
+            item.year ===
+              year
+          );
+        }
+      )
+    );
   }
 
   function isMonthClosed(
@@ -118,83 +304,50 @@ export function FinanceProvider({
     year
   ) {
 
-    const key =
-      getMonthKey(
-        month,
-        year
-      );
+    return closedMonths.some(
+      (item) => {
 
-    return closedMonths.includes(
-      key
+        return (
+          item.month ===
+            month &&
+          item.year ===
+            year
+        );
+      }
     );
   }
 
-  function closeMonth(
-    month,
-    year
-  ) {
+  const dashboardData =
+    useMemo(() => {
 
-    const key =
-      getMonthKey(
-        month,
-        year
+      return contas.filter(
+        (item) => {
+
+          const due =
+            new Date(
+              item.dueDate
+            );
+
+          const month =
+            due.getMonth() + 1;
+
+          const year =
+            due.getFullYear();
+
+          return (
+            month ===
+              selectedMonth &&
+            year ===
+              selectedYear
+          );
+        }
       );
 
-    if (
-      closedMonths.includes(
-        key
-      )
-    ) {
-      return;
-    }
-
-    setClosedMonths([
-      ...closedMonths,
-      key,
+    }, [
+      contas,
+      selectedMonth,
+      selectedYear,
     ]);
-  }
-
-  function openMonth(
-    month,
-    year
-  ) {
-
-    const key =
-      getMonthKey(
-        month,
-        year
-      );
-
-    const updated =
-      closedMonths.filter(
-        (item) =>
-          item !== key
-      );
-
-    setClosedMonths(
-      updated
-    );
-  }
-
-  function getCurrentMonthData() {
-
-    const now =
-      new Date();
-
-    const month =
-      now.getMonth() + 1;
-
-    const year =
-      now.getFullYear();
-
-    return contas.filter(
-      (conta) =>
-        conta.month ===
-          month &&
-        conta.year ===
-          year
-    );
-  }
 
   return (
 
@@ -204,26 +357,30 @@ export function FinanceProvider({
         contas,
         setContas,
 
+        categories,
+        addCategory,
+        removeCategory,
+
+        selectedMonth,
+        setSelectedMonth,
+
+        selectedYear,
+        setSelectedYear,
+
         closedMonths,
-
         closeMonth,
-        openMonth,
-
+        reopenMonth,
         isMonthClosed,
 
+        dashboardData,
+
         formatCurrency,
-
-        getMonthKey,
-
-        getCurrentMonthData,
-
       }}
     >
 
       {children}
 
     </FinanceContext.Provider>
-
   );
 }
 

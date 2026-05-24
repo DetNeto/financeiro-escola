@@ -1,179 +1,120 @@
 import {
-  useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
-import FinancialTable
-  from "../components/FinancialTable";
-
 import {
-  FinanceContext,
+  useFinance,
 } from "../context/FinanceContext";
+
+import FinancialTable from "../components/FinancialTable";
 
 export default function ContasPagar() {
 
   const {
     contas,
     setContas,
+    categories,
+    addCategory,
+    removeCategory,
+    selectedMonth,
+    selectedYear,
     isMonthClosed,
-  } = useContext(
-    FinanceContext
-  );
+  } = useFinance();
 
-  const defaultExpenseCategories = [
-    "Folha Salarial",
-    "Aluguel",
-    "Combustível",
-    "Energia",
-    "Água",
-    "Internet",
-    "Impostos",
-    "Prestadores de Serviço",
-    "Alimentação",
-    "Material Escolar",
-    "Limpeza",
-    "Manutenção",
-    "Outros",
-  ];
+  const [description, setDescription] =
+    useState("");
 
-  const defaultRevenueCategories = [
-    "Mensalidades",
-    "Matrículas",
-    "Eventos",
-    "Atividades Extras",
-    "Reembolsos",
-    "Outros",
-  ];
+  const [category, setCategory] =
+    useState("");
 
-  const [
-    expenseCategories,
-    setExpenseCategories
-  ] = useState(() => {
+  const [dueDate, setDueDate] =
+    useState("");
 
-    const saved =
-      localStorage.getItem(
-        "expenseCategories"
-      );
+  const [value, setValue] =
+    useState("");
 
-    return saved
-      ? JSON.parse(saved)
-      : defaultExpenseCategories;
-  });
+  const [type, setType] =
+    useState("despesa");
 
-  const [
-    revenueCategories,
-    setRevenueCategories
-  ] = useState(() => {
+  const [priority, setPriority] =
+    useState("media");
 
-    const saved =
-      localStorage.getItem(
-        "revenueCategories"
-      );
+  const [isRecurring, setIsRecurring] =
+    useState(false);
 
-    return saved
-      ? JSON.parse(saved)
-      : defaultRevenueCategories;
-  });
+  const [recurrenceType, setRecurrenceType] =
+    useState("mensal");
 
-  useEffect(() => {
+  const [editingId, setEditingId] =
+    useState(null);
 
-    localStorage.setItem(
-      "expenseCategories",
-      JSON.stringify(
-        expenseCategories
-      )
-    );
+  const [search, setSearch] =
+    useState("");
 
-  }, [expenseCategories]);
+  const [filterStatus, setFilterStatus] =
+    useState("todos");
 
-  useEffect(() => {
+  const [filterType, setFilterType] =
+    useState("todos");
 
-    localStorage.setItem(
-      "revenueCategories",
-      JSON.stringify(
-        revenueCategories
-      )
-    );
+  const filteredContas =
+    useMemo(() => {
 
-  }, [revenueCategories]);
+      return contas.filter((item) => {
 
-  const [
-    description,
-    setDescription
-  ] = useState("");
+        const itemMonth =
+          new Date(
+            item.dueDate
+          ).getMonth() + 1;
 
-  const [
-    category,
-    setCategory
-  ] = useState("");
+        const itemYear =
+          new Date(
+            item.dueDate
+          ).getFullYear();
 
-  const [
-    dueDate,
-    setDueDate
-  ] = useState("");
+        const matchMonth =
+          itemMonth ===
+            selectedMonth &&
+          itemYear ===
+            selectedYear;
 
-  const [
-    value,
-    setValue
-  ] = useState("");
+        const matchSearch =
+          item.description
+            .toLowerCase()
+            .includes(
+              search.toLowerCase()
+            );
 
-  const [
-    type,
-    setType
-  ] = useState("despesa");
+        const matchStatus =
+          filterStatus ===
+            "todos" ||
+          item.status ===
+            filterStatus;
 
-  const [
-    priority,
-    setPriority
-  ] = useState("media");
+        const matchType =
+          filterType ===
+            "todos" ||
+          item.type ===
+            filterType;
 
-  const [
-    editingId,
-    setEditingId
-  ] = useState(null);
+        return (
+          matchMonth &&
+          matchSearch &&
+          matchStatus &&
+          matchType
+        );
+      });
 
-  const [
-    search,
-    setSearch
-  ] = useState("");
-
-  const [
-    filterType,
-    setFilterType
-  ] = useState("todos");
-
-  const [
-    filterStatus,
-    setFilterStatus
-  ] = useState("todos");
-
-  const [
-    quickFilter,
-    setQuickFilter
-  ] = useState("todos");
-
-  const [
-    isRecurring,
-    setIsRecurring
-  ] = useState(false);
-
-  const [
-    recurrenceType,
-    setRecurrenceType
-  ] = useState("mensal");
-
-  function normalizeText(text) {
-
-    return text
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(
-        /[\u0300-\u036f]/g,
-        ""
-      );
-  }
+    }, [
+      contas,
+      selectedMonth,
+      selectedYear,
+      search,
+      filterStatus,
+      filterType,
+    ]);
 
   function resetForm() {
 
@@ -181,21 +122,16 @@ export default function ContasPagar() {
     setCategory("");
     setDueDate("");
     setValue("");
-
     setType("despesa");
-
     setPriority("media");
-
     setIsRecurring(false);
-
-    setRecurrenceType(
-      "mensal"
-    );
-
+    setRecurrenceType("mensal");
     setEditingId(null);
   }
 
-  function handleAddConta() {
+  function handleSubmit(e) {
+
+    e.preventDefault();
 
     if (
       !description ||
@@ -203,17 +139,22 @@ export default function ContasPagar() {
       !dueDate ||
       !value
     ) {
+
+      alert(
+        "Preencha todos os campos."
+      );
+
       return;
     }
 
-    const date =
+    const due =
       new Date(dueDate);
 
     const month =
-      date.getMonth() + 1;
+      due.getMonth() + 1;
 
     const year =
-      date.getFullYear();
+      due.getFullYear();
 
     if (
       isMonthClosed(
@@ -229,618 +170,488 @@ export default function ContasPagar() {
       return;
     }
 
-    const contaData = {
-      description,
-      category,
-      dueDate,
-      month,
-      year,
-      value: Number(value),
-      type,
-      priority,
-      isRecurring,
-      recurrenceType,
-    };
+const contaData = {
+
+  description,
+  category,
+  dueDate,
+
+  value:
+    Number(value),
+
+  status:
+    "Pendente",
+
+  type,
+  priority,
+
+  isRecurring,
+
+  recurrenceType,
+
+  month,
+  year,
+};
 
     if (editingId) {
 
-      const updated =
-        contas.map((conta) => {
+      setContas((prev) =>
+        prev.map((item) => {
 
           if (
-            conta.id ===
+            item.id ===
             editingId
           ) {
 
             return {
-              ...conta,
+              ...item,
               ...contaData,
             };
           }
 
-          return conta;
-        });
-
-      setContas(updated);
+          return item;
+        })
+      );
 
     } else {
 
-      const novaConta = {
-        id: Date.now(),
-        status: "Pendente",
-        ...contaData,
-      };
+      setContas((prev) => [
 
-      setContas([
-        ...contas,
-        novaConta,
+        ...prev,
+
+        {
+          id:
+            crypto.randomUUID(),
+
+          ...contaData,
+        },
       ]);
     }
 
     resetForm();
   }
 
-  function generateNextRecurring(
-    conta
-  ) {
+  function handleDelete(id) {
 
-    const shouldGenerate =
-      window.confirm(
-        "Deseja gerar a próxima recorrência?"
+    const conta =
+      contas.find(
+        (item) =>
+          item.id === id
       );
 
-    if (!shouldGenerate) {
+    if (!conta) {
       return;
     }
-
-    const nextDate =
-      new Date(
-        conta.dueDate
-      );
 
     if (
-      conta.recurrenceType ===
-      "mensal"
+      isMonthClosed(
+        conta.month,
+        conta.year
+      )
     ) {
-
-      nextDate.setMonth(
-        nextDate.getMonth() + 1
-      );
-
-    } else if (
-      conta.recurrenceType ===
-      "semanal"
-    ) {
-
-      nextDate.setDate(
-        nextDate.getDate() + 7
-      );
-
-    } else if (
-      conta.recurrenceType ===
-      "anual"
-    ) {
-
-      nextDate.setFullYear(
-        nextDate.getFullYear() + 1
-      );
-    }
-
-    const nextMonth =
-      nextDate.getMonth() + 1;
-
-    const nextYear =
-      nextDate.getFullYear();
-
-    const nextDueDate =
-      nextDate
-        .toISOString()
-        .split("T")[0];
-
-    const alreadyExists =
-      contas.some(
-        (item) => {
-
-          return (
-            item.description ===
-              conta.description &&
-            item.dueDate ===
-              nextDueDate
-          );
-        }
-      );
-
-    if (alreadyExists) {
 
       alert(
-        "A próxima recorrência já existe."
+        "Este mês está fechado."
       );
 
       return;
     }
 
-    const newConta = {
-      ...conta,
-      id: Date.now(),
-      dueDate:
-        nextDueDate,
-      month:
-        nextMonth,
-      year:
-        nextYear,
-      status:
-        "Pendente",
-    };
+    const confirmDelete =
+      window.confirm(
+        "Deseja excluir esta movimentação?"
+      );
 
-    setContas(
-      (prev) => [
-        ...prev,
-        newConta,
-      ]
+    if (!confirmDelete) {
+      return;
+    }
+
+    setContas((prev) =>
+      prev.filter(
+        (item) =>
+          item.id !== id
+      )
+    );
+  }
+
+  function handleEdit(item) {
+
+    if (
+      isMonthClosed(
+        item.month,
+        item.year
+      )
+    ) {
+
+      alert(
+        "Este mês está fechado."
+      );
+
+      return;
+    }
+
+    setEditingId(item.id);
+
+    setDescription(
+      item.description
+    );
+
+    setCategory(
+      item.category
+    );
+
+    setDueDate(
+      item.dueDate
+    );
+
+    setValue(
+      item.value
+    );
+
+    setType(
+      item.type
+    );
+
+    setPriority(
+      item.priority
+    );
+
+    setIsRecurring(
+      item.isRecurring
+    );
+
+    setRecurrenceType(
+      item.recurrenceType ||
+        "mensal"
     );
   }
 
   function handleToggleStatus(id) {
 
-    const conta =
-      contas.find(
-        (item) =>
-          item.id === id
-      );
+    setContas((prevContas) => {
 
-    if (!conta) {
-      return;
-    }
+      const conta =
+        prevContas.find(
+          (item) =>
+            item.id === id
+        );
 
-    if (
-      isMonthClosed(
-        conta.month,
-        conta.year
-      )
-    ) {
+      if (!conta) {
+        return prevContas;
+      }
 
-      alert(
-        "Este mês está fechado."
-      );
+      if (
+        isMonthClosed(
+          conta.month,
+          conta.year
+        )
+      ) {
 
-      return;
-    }
+        alert(
+          "Este mês está fechado."
+        );
 
-    const updated =
-      contas.map((conta) => {
+        return prevContas;
+      }
 
-        if (
-          conta.id === id
-        ) {
+      let updatedContas =
+        prevContas.map(
+          (item) => {
 
-          const newStatus =
-            conta.status ===
-            "Pago"
-              ? "Pendente"
-              : "Pago";
+            if (
+              item.id === id
+            ) {
+
+              return {
+                ...item,
+                status:
+                  item.status ===
+                  "Pago"
+                    ? "Pendente"
+                    : "Pago",
+              };
+            }
+
+            return item;
+          }
+        );
+
+      const updatedConta =
+        updatedContas.find(
+          (item) =>
+            item.id === id
+        );
+
+      if (
+        updatedConta.status ===
+          "Pago" &&
+        updatedConta.isRecurring
+      ) {
+
+        const shouldGenerate =
+          window.confirm(
+            "Deseja gerar a próxima recorrência?"
+          );
+
+        if (shouldGenerate) {
+
+          const nextDate =
+            new Date(
+              updatedConta.dueDate
+            );
 
           if (
-            newStatus ===
-              "Pago" &&
-            conta.isRecurring
+            updatedConta.recurrenceType ===
+            "mensal"
           ) {
 
-            generateNextRecurring(
-              conta
+            nextDate.setMonth(
+              nextDate.getMonth() + 1
+            );
+
+          } else if (
+            updatedConta.recurrenceType ===
+            "semanal"
+          ) {
+
+            nextDate.setDate(
+              nextDate.getDate() + 7
+            );
+
+          } else if (
+            updatedConta.recurrenceType ===
+            "anual"
+          ) {
+
+            nextDate.setFullYear(
+              nextDate.getFullYear() + 1
             );
           }
 
-          return {
-            ...conta,
-            status:
-              newStatus,
-          };
-        }
+          const nextMonth =
+            nextDate.getMonth() + 1;
 
-        return conta;
-      });
+          const nextYear =
+            nextDate.getFullYear();
 
-    setContas(updated);
-  }
+          const nextDueDate =
+            nextDate
+              .toISOString()
+              .split("T")[0];
 
-  function handleDeleteConta(id) {
+          const alreadyExists =
+            updatedContas.some(
+              (item) => {
 
-    const conta =
-      contas.find(
-        (item) =>
-          item.id === id
-      );
-
-    if (!conta) {
-      return;
-    }
-
-    if (
-      isMonthClosed(
-        conta.month,
-        conta.year
-      )
-    ) {
-
-      alert(
-        "Este mês está fechado."
-      );
-
-      return;
-    }
-
-    const updated =
-      contas.filter(
-        (conta) =>
-          conta.id !== id
-      );
-
-    setContas(updated);
-  }
-
-  function handleEditConta(conta) {
-
-    if (
-      isMonthClosed(
-        conta.month,
-        conta.year
-      )
-    ) {
-
-      alert(
-        "Este mês está fechado."
-      );
-
-      return;
-    }
-
-    setEditingId(
-      conta.id
-    );
-
-    setDescription(
-      conta.description
-    );
-
-    setCategory(
-      conta.category
-    );
-
-    setDueDate(
-      conta.dueDate
-    );
-
-    setValue(
-      conta.value
-    );
-
-    setType(
-      conta.type
-    );
-
-    setPriority(
-      conta.priority
-    );
-
-    setIsRecurring(
-      conta.isRecurring ||
-      false
-    );
-
-    setRecurrenceType(
-      conta.recurrenceType ||
-      "mensal"
-    );
-  }
-
-  const filteredContas =
-    contas
-      .filter((conta) => {
-
-        const matchesSearch =
-          conta.description
-            .toLowerCase()
-            .includes(
-              search.toLowerCase()
+                return (
+                  item.description ===
+                    updatedConta.description &&
+                  item.dueDate ===
+                    nextDueDate
+                );
+              }
             );
 
-        const matchesType =
-          filterType === "todos"
-            ? true
-            : conta.type ===
-              filterType;
+          if (!alreadyExists) {
 
-        const matchesStatus =
-          filterStatus === "todos"
-            ? true
-            : conta.status ===
-              filterStatus;
+            updatedContas = [
 
-        const matchesQuickFilter =
-          quickFilter === "todos"
+              ...updatedContas,
 
-            ? true
+              {
+                ...updatedConta,
+                id:
+                  crypto.randomUUID(),
+                dueDate:
+                  nextDueDate,
+                month:
+                  nextMonth,
+                year:
+                  nextYear,
+                status:
+                  "Pendente",
+              },
+            ];
+          }
+        }
+      }
 
-            : quickFilter ===
-              "alta"
-
-            ? conta.priority ===
-              "alta"
-
-            : quickFilter ===
-              "vencidas"
-
-            ? conta.status !==
-                "Pago" &&
-              new Date(
-                conta.dueDate
-              ) < new Date()
-
-            : true;
-
-        return (
-          matchesSearch &&
-          matchesType &&
-          matchesStatus &&
-          matchesQuickFilter
-        );
-      })
-      .sort((a, b) => {
-
-        return (
-          new Date(
-            a.dueDate
-          ) -
-          new Date(
-            b.dueDate
-          )
-        );
-      });
+      return updatedContas;
+    });
+  }
 
   return (
 
-    <div className="min-h-screen text-white">
+    <div className="space-y-8">
 
-      <h1 className="text-5xl font-bold mb-10">
+      <div>
 
-        Movimentações Financeiras
+        <h1 className="text-5xl font-black">
+          Movimentações Financeiras
+        </h1>
 
-      </h1>
+      </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl mb-8">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 grid grid-cols-1 md:grid-cols-4 gap-4"
+      >
 
-        <h2 className="text-2xl font-bold mb-6">
+        <input
+          type="text"
+          placeholder="Descrição"
+          value={description}
+          onChange={(e) =>
+            setDescription(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        />
 
-          Nova Movimentação
+        <select
+          value={category}
+          onChange={(e) =>
+            setCategory(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        >
 
-        </h2>
+          <option value="">
+            Categoria
+          </option>
 
-        <div className="grid grid-cols-4 gap-4">
-
-          <input
-            type="text"
-            placeholder="Descrição"
-            value={description}
-            onChange={(e) =>
-              setDescription(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              outline-none
-            "
-          />
-
-          <select
-            value={category}
-            onChange={(e) =>
-              setCategory(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              outline-none
-            "
-          >
-
-            <option value="">
-              Categoria
-            </option>
-
-            {(type === "despesa"
-              ? expenseCategories
-              : revenueCategories
-            ).map((categoria) => (
+          {categories.map(
+            (item) => (
 
               <option
-                key={categoria}
-                value={categoria}
+                key={item}
+                value={item}
               >
-
-                {categoria}
-
+                {item}
               </option>
-
-            ))}
-
-          </select>
-
-          <input
-            type="date"
-            value={dueDate}
-            onChange={(e) =>
-              setDueDate(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              outline-none
-            "
-          />
-
-          <input
-            type="number"
-            placeholder="Valor"
-            value={value}
-            onChange={(e) =>
-              setValue(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              outline-none
-            "
-          />
-
-        </div>
-
-        <div className="grid grid-cols-4 gap-4 mt-4">
-
-          <select
-            value={type}
-            onChange={(e) =>
-              setType(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              outline-none
-            "
-          >
-
-            <option value="despesa">
-              Despesa
-            </option>
-
-            <option value="receita">
-              Receita
-            </option>
-
-          </select>
-
-          <select
-            value={priority}
-            onChange={(e) =>
-              setPriority(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              outline-none
-            "
-          >
-
-            <option value="alta">
-              🔴 Alta
-            </option>
-
-            <option value="media">
-              🟡 Média
-            </option>
-
-            <option value="baixa">
-              🔵 Baixa
-            </option>
-
-          </select>
-
-          <label className="
-            flex items-center gap-3
-            bg-zinc-800
-            border border-zinc-700
-            rounded-xl
-            px-4 py-4
-          ">
-
-            <input
-              type="checkbox"
-              checked={
-                isRecurring
-              }
-              onChange={(e) =>
-                setIsRecurring(
-                  e.target.checked
-                )
-              }
-            />
-
-            Conta Recorrente
-
-          </label>
-
-          {isRecurring && (
-
-            <select
-              value={
-                recurrenceType
-              }
-              onChange={(e) =>
-                setRecurrenceType(
-                  e.target.value
-                )
-              }
-              className="
-                bg-zinc-800
-                border border-zinc-700
-                rounded-xl
-                px-4 py-4
-                outline-none
-              "
-            >
-
-              <option value="mensal">
-                Mensal
-              </option>
-
-              <option value="semanal">
-                Semanal
-              </option>
-
-              <option value="anual">
-                Anual
-              </option>
-
-            </select>
-
+            )
           )}
 
+        </select>
+
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) =>
+            setDueDate(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        />
+
+        <input
+          type="number"
+          placeholder="Valor"
+          value={value}
+          onChange={(e) =>
+            setValue(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        />
+
+        <select
+          value={type}
+          onChange={(e) =>
+            setType(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        >
+
+          <option value="despesa">
+            Despesa
+          </option>
+
+          <option value="receita">
+            Receita
+          </option>
+
+        </select>
+
+        <select
+          value={priority}
+          onChange={(e) =>
+            setPriority(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        >
+
+          <option value="baixa">
+            🟢 Baixa
+          </option>
+
+          <option value="media">
+            🟡 Média
+          </option>
+
+          <option value="alta">
+            🔴 Alta
+          </option>
+
+        </select>
+
+        <div className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4 flex items-center gap-3">
+
+          <input
+            type="checkbox"
+            checked={isRecurring}
+            onChange={(e) =>
+              setIsRecurring(
+                e.target.checked
+              )
+            }
+          />
+
+          <span>
+            Conta Recorrente
+          </span>
+
         </div>
 
+        {isRecurring && (
+
+          <select
+            value={recurrenceType}
+            onChange={(e) =>
+              setRecurrenceType(
+                e.target.value
+              )
+            }
+            className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+          >
+
+            <option value="mensal">
+              Mensal
+            </option>
+
+            <option value="semanal">
+              Semanal
+            </option>
+
+            <option value="anual">
+              Anual
+            </option>
+
+          </select>
+        )}
+
         <button
-          onClick={handleAddConta}
-          className="
-            mt-6
-            bg-blue-600
-            hover:bg-blue-500
-            px-6 py-4
-            rounded-xl
-            font-semibold
-            transition-all
-          "
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-500 transition rounded-xl px-6 py-4 font-bold"
         >
 
           {editingId
@@ -849,15 +660,79 @@ export default function ContasPagar() {
 
         </button>
 
+      </form>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <input
+          type="text"
+          placeholder="Buscar descrição..."
+          value={search}
+          onChange={(e) =>
+            setSearch(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        />
+
+        <select
+          value={filterType}
+          onChange={(e) =>
+            setFilterType(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        >
+
+          <option value="todos">
+            Todos os tipos
+          </option>
+
+          <option value="despesa">
+            Despesas
+          </option>
+
+          <option value="receita">
+            Receitas
+          </option>
+
+        </select>
+
+        <select
+          value={filterStatus}
+          onChange={(e) =>
+            setFilterStatus(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        >
+
+          <option value="todos">
+            Todos os status
+          </option>
+
+          <option value="Pago">
+            Pago
+          </option>
+
+          <option value="Pendente">
+            Pendente
+          </option>
+
+        </select>
+
       </div>
 
       <FinancialTable
         data={filteredContas}
         onDelete={
-          handleDeleteConta
+          handleDelete
         }
         onEdit={
-          handleEditConta
+          handleEdit
         }
         onToggleStatus={
           handleToggleStatus
