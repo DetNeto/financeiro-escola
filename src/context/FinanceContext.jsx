@@ -62,21 +62,34 @@ export function FinanceProvider({
   const [selectedMonth, setSelectedMonth] =
     useState(() => {
 
-      const today =
-        new Date();
+      const savedMonth =
+        localStorage.getItem(
+          "selectedMonth"
+        );
+
+      if (savedMonth) {
+        return Number(savedMonth);
+      }
 
       return (
-        today.getMonth() + 1
+        new Date().getMonth() + 1
       );
     });
 
   const [selectedYear, setSelectedYear] =
     useState(() => {
 
-      const today =
-        new Date();
+      const savedYear =
+        localStorage.getItem(
+          "selectedYear"
+        );
 
-      return today.getFullYear();
+      if (savedYear) {
+        return Number(savedYear);
+      }
+
+      return new Date()
+        .getFullYear();
     });
 
   const [closedMonths, setClosedMonths] =
@@ -120,6 +133,24 @@ export function FinanceProvider({
     );
 
   }, [closedMonths]);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "selectedMonth",
+      selectedMonth
+    );
+
+  }, [selectedMonth]);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      "selectedYear",
+      selectedYear
+    );
+
+  }, [selectedYear]);
 
   function normalizeText(text) {
 

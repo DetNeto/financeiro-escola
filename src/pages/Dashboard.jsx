@@ -1,6 +1,5 @@
 import {
   useMemo,
-  useState,
 } from "react";
 
 import {
@@ -18,31 +17,25 @@ import FinanceChart
 export default function Dashboard() {
 
   const {
+
     contas,
+
     formatCurrency,
+
     closeMonth,
-    openMonth,
+    reopenMonth,
     isMonthClosed,
-  } = useFinance();
 
-  const today =
-    new Date();
-
-  const [
     selectedMonth,
     setSelectedMonth,
-  ] = useState(
-    today.getMonth() + 1
-  );
 
-  const [
     selectedYear,
     setSelectedYear,
-  ] = useState(
-    today.getFullYear()
-  );
+
+  } = useFinance();
 
   const monthNames = [
+
     "Janeiro",
     "Fevereiro",
     "Março",
@@ -97,11 +90,15 @@ export default function Dashboard() {
     useMemo(() => {
 
       return contas.filter(
-        (conta) =>
-          conta.month ===
-            selectedMonth &&
-          conta.year ===
-            selectedYear
+        (conta) => {
+
+          return (
+            conta.month ===
+              selectedMonth &&
+            conta.year ===
+              selectedYear
+          );
+        }
       );
 
     }, [
@@ -197,7 +194,7 @@ export default function Dashboard() {
 
     if (monthClosed) {
 
-      openMonth(
+      reopenMonth(
         selectedMonth,
         selectedYear
       );
@@ -328,9 +325,7 @@ export default function Dashboard() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
           <p className="text-zinc-400 mb-2">
-
             Receitas
-
           </p>
 
           <h2 className="text-3xl font-bold text-green-400">
@@ -346,9 +341,7 @@ export default function Dashboard() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
           <p className="text-zinc-400 mb-2">
-
             Despesas
-
           </p>
 
           <h2 className="text-3xl font-bold text-red-400">
@@ -364,9 +357,7 @@ export default function Dashboard() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
           <p className="text-zinc-400 mb-2">
-
             Saldo Atual
-
           </p>
 
           <h2 className={`text-3xl font-bold ${
@@ -386,9 +377,7 @@ export default function Dashboard() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
           <p className="text-zinc-400 mb-2">
-
             Pendências
-
           </p>
 
           <h2 className="text-3xl font-bold text-yellow-400">
@@ -408,20 +397,15 @@ export default function Dashboard() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
           <h2 className="text-2xl font-bold mb-6">
-
             Contas Vencidas
-
           </h2>
 
           <div className="space-y-4">
 
-            {vencidas.length ===
-            0 ? (
+            {vencidas.length === 0 ? (
 
               <p className="text-zinc-400">
-
                 Nenhuma conta vencida.
-
               </p>
 
             ) : (
@@ -446,19 +430,15 @@ export default function Dashboard() {
                       <div>
 
                         <p className="font-semibold">
-
                           {
                             conta.description
                           }
-
                         </p>
 
                         <p className="text-zinc-400 text-sm">
-
                           {
                             conta.category
                           }
-
                         </p>
 
                       </div>
@@ -474,11 +454,9 @@ export default function Dashboard() {
                         </p>
 
                         <p className="text-zinc-500 text-sm">
-
                           {
                             conta.dueDate
                           }
-
                         </p>
 
                       </div>
@@ -486,10 +464,8 @@ export default function Dashboard() {
                     </div>
 
                   </div>
-
                 )
               )
-
             )}
 
           </div>
@@ -499,20 +475,15 @@ export default function Dashboard() {
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
           <h2 className="text-2xl font-bold mb-6">
-
             Alta Prioridade
-
           </h2>
 
           <div className="space-y-4">
 
-            {highPriority.length ===
-            0 ? (
+            {highPriority.length === 0 ? (
 
               <p className="text-zinc-400">
-
                 Nenhuma movimentação crítica.
-
               </p>
 
             ) : (
@@ -537,19 +508,15 @@ export default function Dashboard() {
                       <div>
 
                         <p className="font-semibold">
-
                           {
                             conta.description
                           }
-
                         </p>
 
                         <p className="text-zinc-400 text-sm">
-
                           {
                             conta.category
                           }
-
                         </p>
 
                       </div>
@@ -565,11 +532,9 @@ export default function Dashboard() {
                         </p>
 
                         <p className="text-zinc-500 text-sm">
-
                           {
                             conta.dueDate
                           }
-
                         </p>
 
                       </div>
@@ -577,10 +542,8 @@ export default function Dashboard() {
                     </div>
 
                   </div>
-
                 )
               )
-
             )}
 
           </div>

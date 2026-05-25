@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -16,8 +15,6 @@ export default function ContasPagar() {
     contas,
     setContas,
     categories,
-    addCategory,
-    removeCategory,
     selectedMonth,
     selectedYear,
     isMonthClosed,
@@ -58,6 +55,24 @@ export default function ContasPagar() {
 
   const [filterType, setFilterType] =
     useState("todos");
+
+  const [successMessage, setSuccessMessage] =
+    useState("");
+
+  const monthNames = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
 
   const filteredContas =
     useMemo(() => {
@@ -170,28 +185,28 @@ export default function ContasPagar() {
       return;
     }
 
-const contaData = {
+    const contaData = {
 
-  description,
-  category,
-  dueDate,
+      description,
+      category,
+      dueDate,
 
-  value:
-    Number(value),
+      value:
+        Number(value),
 
-  status:
-    "Pendente",
+      status:
+        "Pendente",
 
-  type,
-  priority,
+      type,
+      priority,
 
-  isRecurring,
+      isRecurring,
 
-  recurrenceType,
+      recurrenceType,
 
-  month,
-  year,
-};
+      month,
+      year,
+    };
 
     if (editingId) {
 
@@ -327,6 +342,8 @@ const contaData = {
   }
 
   function handleToggleStatus(id) {
+
+    setSuccessMessage("");
 
     setContas((prevContas) => {
 
@@ -472,6 +489,10 @@ const contaData = {
                   "Pendente",
               },
             ];
+
+            setSuccessMessage(
+              `Próxima recorrência criada para ${monthNames[nextMonth - 1]}/${nextYear}`
+            );
           }
         }
       }
@@ -491,6 +512,22 @@ const contaData = {
         </h1>
 
       </div>
+
+      {successMessage && (
+
+        <div className="
+          bg-green-500/10
+          border border-green-500/20
+          text-green-400
+          px-6 py-4
+          rounded-2xl
+          font-medium
+        ">
+
+          {successMessage}
+
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}
