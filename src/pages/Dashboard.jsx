@@ -5,6 +5,8 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 
 import {
@@ -107,31 +109,47 @@ export default function Dashboard() {
       selectedYear,
     ]);
 
-  const totalReceitas =
-    currentMonthContas
-      .filter(
-        (conta) =>
-          conta.type ===
-          "receita"
-      )
-      .reduce(
-        (acc, conta) =>
-          acc + conta.value,
-        0
-      );
+  function calculateTotals(data) {
 
-  const totalDespesas =
-    currentMonthContas
-      .filter(
-        (conta) =>
-          conta.type ===
-          "despesa"
-      )
-      .reduce(
-        (acc, conta) =>
-          acc + conta.value,
-        0
-      );
+    const receitas =
+      data
+        .filter(
+          (conta) =>
+            conta.type ===
+            "receita"
+        )
+        .reduce(
+          (acc, conta) =>
+            acc + conta.value,
+          0);
+
+    const despesas =
+      data
+        .filter(
+          (conta) =>
+            conta.type ===
+            "despesa"
+        )
+        .reduce(
+          (acc, conta) =>
+            acc + conta.value,
+          0);
+
+    return {
+
+      receitas,
+
+      despesas,
+
+      saldo:
+        receitas - despesas,
+    };
+  }
+
+  const currentTotals =
+    calculateTotals(
+      currentMonthContas
+    );
 
   const totalPago =
     currentMonthContas
@@ -158,10 +176,6 @@ export default function Dashboard() {
           acc + conta.value,
         0
       );
-
-  const saldoAtual =
-    totalReceitas -
-    totalDespesas;
 
   const vencidas =
     currentMonthContas.filter(
@@ -207,6 +221,89 @@ export default function Dashboard() {
       );
     }
   }
+
+  const resultadoPositivo =
+    currentTotals.saldo >= 0;
+
+  const projectionData =
+    useMemo(() => {
+
+      const projections = [];
+
+      for (
+        let i = 0;
+        i < 6;
+        i++
+      ) {
+
+        const date =
+          new Date(
+            selectedYear,
+            selectedMonth - 1 + i
+          );
+
+        const month =
+          date.getMonth() + 1;
+
+        const year =
+          date.getFullYear();
+
+        const monthContas =
+          contas.filter(
+            (conta) => {
+
+              return (
+                conta.month ===
+                  month &&
+                conta.year ===
+                  year
+              );
+            }
+          );
+
+        const totals =
+          calculateTotals(
+            monthContas
+          );
+
+        projections.push({
+
+          name:
+            monthNames[
+              month - 1
+            ],
+
+          receitas:
+            totals.receitas,
+
+          despesas:
+            totals.despesas,
+
+          saldo:
+            totals.saldo,
+        });
+      }
+
+      return projections;
+
+    }, [
+      contas,
+      selectedMonth,
+      selectedYear,
+    ]);
+
+  const financialStatusData = [
+
+    {
+      name: "Pago",
+      valor: totalPago,
+    },
+
+    {
+      name: "Pendente",
+      valor: totalPendente,
+    },
+  ];
 
   return (
 
@@ -320,7 +417,7 @@ export default function Dashboard() {
 
       </div>
 
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-5 gap-6">
 
         <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl">
 
@@ -331,7 +428,7 @@ export default function Dashboard() {
           <h2 className="text-3xl font-bold text-green-400">
 
             {formatCurrency(
-              totalReceitas
+              currentTotals.receitas
             )}
 
           </h2>
@@ -347,7 +444,7 @@ export default function Dashboard() {
           <h2 className="text-3xl font-bold text-red-400">
 
             {formatCurrency(
-              totalDespesas
+              currentTotals.despesas
             )}
 
           </h2>
@@ -361,13 +458,13 @@ export default function Dashboard() {
           </p>
 
           <h2 className={`text-3xl font-bold ${
-            saldoAtual >= 0
+            resultadoPositivo
               ? "text-blue-400"
               : "text-red-400"
           }`}>
 
             {formatCurrency(
-              saldoAtual
+              currentTotals.saldo
             )}
 
           </h2>
@@ -387,6 +484,50 @@ export default function Dashboard() {
             }
 
           </h2>
+
+        </div>
+
+        <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between">
+
+          <div>
+
+            <p className="text-zinc-400 mb-2">
+              Resultado
+            </p>
+
+            <h2 className={`text-2xl font-bold ${
+              resultadoPositivo
+                ? "text-green-400"
+                : "text-red-400"
+            }`}>
+
+              {resultadoPositivo
+                ? "Lucro"
+                : "Prejuízo"}
+
+            </h2>
+
+          </div>
+
+          <div className="mt-4">
+
+            {resultadoPositivo ? (
+
+              <TrendingUp
+                size={32}
+                className="text-green-400"
+              />
+
+            ) : (
+
+              <TrendingDown
+                size={32}
+                className="text-red-400"
+              />
+
+            )}
+
+          </div>
 
         </div>
 
@@ -553,12 +694,33 @@ export default function Dashboard() {
       </div>
 
       <FinanceChart
-        totalPago={
-          totalPago
-        }
-        totalPendente={
-          totalPendente
-        }
+        title="Resumo Financeiro"
+        data={financialStatusData}
+      />
+
+      <FinanceChart
+        title="Fluxo de Caixa Projetado"
+        data={projectionData}
+        dataKeys={[
+          {
+            key: "receitas",
+            color: "#22c55e",
+            name: "Receitas",
+          },
+
+          {
+            key: "despesas",
+            color: "#ef4444",
+            name: "Despesas",
+          },
+
+          {
+            key: "saldo",
+            color: "#3b82f6",
+            name: "Saldo",
+          },
+        ]}
+        height="h-96"
       />
 
     </div>

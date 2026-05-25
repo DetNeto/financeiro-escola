@@ -17,8 +17,18 @@ import {
 } from "recharts";
 
 import {
+  FileText,
+  FileSpreadsheet,
+} from "lucide-react";
+
+import {
   useFinance,
 } from "../context/FinanceContext";
+
+import {
+  exportFinancialPDF,
+  exportFinancialExcel,
+} from "../utils/exportFinancialReport";
 
 export default function AnaliseFinanceira() {
 
@@ -165,23 +175,103 @@ export default function AnaliseFinanceira() {
     "#06b6d4",
   ];
 
+  function handleExportPDF() {
+
+    exportFinancialPDF({
+
+      monthlyData,
+
+      categoryData,
+
+      totalReceitas,
+
+      totalDespesas,
+
+      saldoGeral,
+    });
+  }
+
+  function handleExportExcel() {
+
+    exportFinancialExcel({
+
+      monthlyData,
+
+      categoryData,
+    });
+  }
+
   return (
 
     <div className="space-y-8 text-white">
 
-      <div>
+      <div className="flex justify-between items-start">
 
-        <h1 className="text-5xl font-bold mb-2">
+        <div>
 
-          Análise Financeira
+          <h1 className="text-5xl font-bold mb-2">
 
-        </h1>
+            Análise Financeira
 
-        <p className="text-zinc-400 text-lg">
+          </h1>
 
-          Histórico financeiro temporal da operação.
+          <p className="text-zinc-400 text-lg">
 
-        </p>
+            Histórico financeiro temporal da operação.
+
+          </p>
+
+        </div>
+
+        <div className="flex gap-4">
+
+          <button
+            onClick={
+              handleExportPDF
+            }
+            className="
+              flex items-center gap-2
+              bg-red-500/10
+              border border-red-500/20
+              text-red-400
+              px-5 py-3
+              rounded-2xl
+              hover:bg-red-500/20
+              transition
+            "
+          >
+
+            <FileText size={20} />
+
+            Exportar PDF
+
+          </button>
+
+          <button
+            onClick={
+              handleExportExcel
+            }
+            className="
+              flex items-center gap-2
+              bg-green-500/10
+              border border-green-500/20
+              text-green-400
+              px-5 py-3
+              rounded-2xl
+              hover:bg-green-500/20
+              transition
+            "
+          >
+
+            <FileSpreadsheet
+              size={20}
+            />
+
+            Exportar Excel
+
+          </button>
+
+        </div>
 
       </div>
 

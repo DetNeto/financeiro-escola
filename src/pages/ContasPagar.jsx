@@ -29,6 +29,9 @@ export default function ContasPagar() {
   const [dueDate, setDueDate] =
     useState("");
 
+  const [dueRule, setDueRule] =
+    useState("data_fixa");
+
   const [value, setValue] =
     useState("");
 
@@ -136,12 +139,158 @@ export default function ContasPagar() {
     setDescription("");
     setCategory("");
     setDueDate("");
+    setDueRule("data_fixa");
     setValue("");
     setType("despesa");
     setPriority("media");
     setIsRecurring(false);
     setRecurrenceType("mensal");
     setEditingId(null);
+  }
+
+  function getNextBusinessDay(date) {
+
+    const next =
+      new Date(date);
+
+    while (
+      next.getDay() === 0 ||
+      next.getDay() === 6
+    ) {
+
+      next.setDate(
+        next.getDate() + 1
+      );
+    }
+
+    return next;
+  }
+
+  function getLastBusinessDay(
+    year,
+    month
+  ) {
+
+    const lastDay =
+      new Date(
+        year,
+        month + 1,
+        0
+      );
+
+    while (
+      lastDay.getDay() === 0 ||
+      lastDay.getDay() === 6
+    ) {
+
+      lastDay.setDate(
+        lastDay.getDate() - 1
+      );
+    }
+
+    return lastDay;
+  }
+
+  function calculateNextDueDate(
+    conta
+  ) {
+
+    const nextDate =
+      new Date(
+        conta.dueDate
+      );
+
+    if (
+      conta.recurrenceType ===
+      "mensal"
+    ) {
+
+      nextDate.setMonth(
+        nextDate.getMonth() + 1
+      );
+
+    } else if (
+      conta.recurrenceType ===
+      "semanal"
+    ) {
+
+      nextDate.setDate(
+        nextDate.getDate() + 7
+      );
+
+    } else if (
+      conta.recurrenceType ===
+      "anual"
+    ) {
+
+      nextDate.setFullYear(
+        nextDate.getFullYear() + 1
+      );
+    }
+
+    if (
+      conta.dueRule ===
+      "primeiro_dia_util"
+    ) {
+
+      nextDate.setDate(1);
+
+      return getNextBusinessDay(
+        nextDate
+      );
+    }
+
+    if (
+      conta.dueRule ===
+      "ultimo_dia_util"
+    ) {
+
+      return getLastBusinessDay(
+        nextDate.getFullYear(),
+        nextDate.getMonth()
+      );
+    }
+
+    if (
+      conta.dueRule ===
+      "quinto_dia_util"
+    ) {
+
+      const temp =
+        new Date(
+          nextDate.getFullYear(),
+          nextDate.getMonth(),
+          1
+        );
+
+      let businessDays = 0;
+
+      while (
+        businessDays < 5
+      ) {
+
+        if (
+          temp.getDay() !== 0 &&
+          temp.getDay() !== 6
+        ) {
+
+          businessDays++;
+        }
+
+        if (
+          businessDays < 5
+        ) {
+
+          temp.setDate(
+            temp.getDate() + 1
+          );
+        }
+      }
+
+      return temp;
+    }
+
+    return nextDate;
   }
 
   function handleSubmit(e) {
@@ -190,6 +339,8 @@ export default function ContasPagar() {
       description,
       category,
       dueDate,
+
+      dueRule,
 
       value:
         Number(value),
@@ -319,6 +470,11 @@ export default function ContasPagar() {
       item.dueDate
     );
 
+    setDueRule(
+      item.dueRule ||
+        "data_fixa"
+    );
+
     setValue(
       item.value
     );
@@ -413,37 +569,9 @@ export default function ContasPagar() {
         if (shouldGenerate) {
 
           const nextDate =
-            new Date(
-              updatedConta.dueDate
+            calculateNextDueDate(
+              updatedConta
             );
-
-          if (
-            updatedConta.recurrenceType ===
-            "mensal"
-          ) {
-
-            nextDate.setMonth(
-              nextDate.getMonth() + 1
-            );
-
-          } else if (
-            updatedConta.recurrenceType ===
-            "semanal"
-          ) {
-
-            nextDate.setDate(
-              nextDate.getDate() + 7
-            );
-
-          } else if (
-            updatedConta.recurrenceType ===
-            "anual"
-          ) {
-
-            nextDate.setFullYear(
-              nextDate.getFullYear() + 1
-            );
-          }
 
           const nextMonth =
             nextDate.getMonth() + 1;
@@ -477,14 +605,19 @@ export default function ContasPagar() {
 
               {
                 ...updatedConta,
+
                 id:
                   crypto.randomUUID(),
+
                 dueDate:
                   nextDueDate,
+
                 month:
                   nextMonth,
+
                 year:
                   nextYear,
+
                 status:
                   "Pendente",
               },
@@ -584,6 +717,34 @@ export default function ContasPagar() {
           }
           className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
         />
+
+        <select
+          value={dueRule}
+          onChange={(e) =>
+            setDueRule(
+              e.target.value
+            )
+          }
+          className="bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-4"
+        >
+
+          <option value="data_fixa">
+            Data fixa
+          </option>
+
+          <option value="primeiro_dia_util">
+            Primeiro dia útil
+          </option>
+
+          <option value="quinto_dia_util">
+            Quinto dia útil
+          </option>
+
+          <option value="ultimo_dia_util">
+            Último dia útil
+          </option>
+
+        </select>
 
         <input
           type="number"

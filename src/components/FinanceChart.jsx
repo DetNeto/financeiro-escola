@@ -1,29 +1,71 @@
 import {
+  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
 } from "recharts";
 
 export default function FinanceChart({
-  title = "Resumo Financeiro",
-  data = [],
-  height = "h-52",
-}) {
-  return (
-    <div className="bg-zinc-900 p-6 rounded-2xl mt-8">
 
-      <h2 className="text-2xl font-bold mb-6">
-        {title}
-      </h2>
+  title = "Resumo Financeiro",
+
+  data = [],
+
+  height = "h-72",
+
+  dataKeys = [
+    {
+      key: "valor",
+      color: "#3b82f6",
+      name: "Valor",
+    },
+  ],
+
+}) {
+
+  return (
+
+    <div className="
+      bg-zinc-900
+      border border-zinc-800
+      p-6
+      rounded-3xl
+      mt-8
+    ">
+
+      <div className="mb-6">
+
+        <h2 className="
+          text-2xl
+          font-bold
+          text-white
+        ">
+
+          {title}
+
+        </h2>
+
+      </div>
 
       <div className={`w-full ${height}`}>
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+        >
 
-          <BarChart data={data}>
+          <BarChart
+            data={data}
+          >
+
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#27272a"
+            />
 
             <XAxis
               dataKey="name"
@@ -40,24 +82,50 @@ export default function FinanceChart({
 
             <Tooltip
               cursor={{
-                fill: "rgba(63, 63, 70, 0.25)",
+                fill:
+                  "rgba(63,63,70,0.15)",
               }}
+
               contentStyle={{
-                backgroundColor: "#18181b",
-                border: "1px solid #3f3f46",
-                borderRadius: "12px",
-                color: "#ffffff",
+                backgroundColor:
+                  "#18181b",
+
+                border:
+                  "1px solid #3f3f46",
+
+                borderRadius:
+                  "16px",
+
+                color:
+                  "#ffffff",
               }}
+
               labelStyle={{
-                color: "#ffffff",
+                color:
+                  "#ffffff",
               }}
             />
 
-            <Bar
-              dataKey="valor"
-              fill="#3b82f6"
-              radius={[8, 8, 0, 0]}
-            />
+            <Legend />
+
+            {dataKeys.map(
+              (item) => (
+
+                <Bar
+                  key={item.key}
+                  dataKey={item.key}
+                  fill={item.color}
+                  name={item.name}
+                  radius={[
+                    10,
+                    10,
+                    0,
+                    0,
+                  ]}
+                />
+
+              )
+            )}
 
           </BarChart>
 
