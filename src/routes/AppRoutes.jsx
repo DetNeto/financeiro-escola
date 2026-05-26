@@ -21,9 +21,9 @@ export default function AppRoutes() {
             element={<Dashboard />}
           />
           <Route
-  path="analise-financeira"
-  element={<AnaliseFinanceira />}
-/>
+            path="analise-financeira"
+            element={<AnaliseFinanceira />}
+          />
           <Route
             path="contas-pagar"
             element={<ContasPagar />}
