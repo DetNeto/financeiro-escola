@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -11,150 +12,167 @@ import ResponsaveisCards from "../components/responsaveis/ResponsaveisCards";
 
 import ResponsaveisTable from "../components/responsaveis/ResponsaveisTable";
 
-import ResponsaveisModal from "../components/responsaveis/ResponsaveisModal";
+import ResponsavelModal from "../components/responsaveis/ResponsaveisModal";
 
 export default function Responsaveis() {
 
-  const emptyForm = {
+  const STORAGE_KEY =
+    "erp-escolar-responsaveis";
 
-    nome: "",
+  const [search, setSearch] =
+    useState("");
 
-    tipo: "Ambos",
-
-    cpf: "",
-
-    rg: "",
-
-    estadoCivil: "Solteiro(a)",
-
-    nacionalidade: "",
-
-    profissao: "",
-
-    email: "",
-
-    responsavelSecundario: "",
-
-    ddiTelefone: "+55",
-
-    dddTelefone: "",
-
-    telefone: "",
-
-    whatsapp: "",
-
-    endereco: "",
-
-    numero: "",
-
-    bairro: "",
-
-    cidade: "",
-
-    cep: "",
-
-    planoSaude: "",
-
-    carteirinha: "",
-
-    autorizadoRetirada: "Sim",
-
-    observacoes: "",
-
-    status: "Ativo",
-  };
-
-  const [responsaveis, setResponsaveis] =
-    useState([
-      {
-        id:
-          crypto.randomUUID(),
-
-        codigo:
-          "RESP-2026-0001",
-
-        nome:
-          "Mariana Silva",
-
-        tipo:
-          "Ambos",
-
-        cpf:
-          "123.456.789-00",
-
-        rg:
-          "1098765432",
-
-        estadoCivil:
-          "Casado(a)",
-
-        nacionalidade:
-          "Brasileira",
-
-        profissao:
-          "Professora",
-
-        email:
-          "mariana@email.com",
-
-        responsavelSecundario:
-          "",
-
-        ddiTelefone:
-          "+55",
-
-        dddTelefone:
-          "55",
-
-        telefone:
-          "3025-0000",
-
-        whatsapp:
-          "99999-9999",
-
-        endereco:
-          "Rua das Flores",
-
-        numero:
-          "123",
-
-        bairro:
-          "Centro",
-
-        cidade:
-          "Santa Maria",
-
-        cep:
-          "97000-000",
-
-        planoSaude:
-          "Unimed",
-
-        carteirinha:
-          "RESP-2026-0001",
-
-        autorizadoRetirada:
-          "Sim",
-
-        observacoes:
-          "Autorizada para retirada.",
-
-        status:
-          "Ativo",
-      },
-    ]);
-
-  const [form, setForm] =
-    useState(emptyForm);
-
-  const [editingId, setEditingId] =
+  const [editingResponsavelId, setEditingResponsavelId] =
     useState(null);
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
 
-  const [search, setSearch] =
-    useState("");
+  const [responsaveis, setResponsaveis] =
+    useState(() => {
+
+      const savedResponsaveis =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
+
+      return savedResponsaveis
+
+        ? JSON.parse(
+            savedResponsaveis
+          )
+
+        : [
+            {
+              id:
+                crypto.randomUUID(),
+
+              codigo:
+                "RESP-2026-0001",
+
+              nome:
+                "Mariana Silva",
+
+              tipo:
+                "Ambos",
+
+              cpf:
+                "00000000000",
+
+              rg:
+                "000000000",
+
+              estadoCivil:
+                "Casado(a)",
+
+              nacionalidade:
+                "Brasileira",
+
+              profissao:
+                "Empresária",
+
+              email:
+                "mariana@email.com",
+
+              autorizacao:
+                "Autorizado Retirada",
+
+              ddi:
+                "+55",
+
+              ddd:
+                "55",
+
+              telefone:
+                "999999999",
+
+              telefone2:
+                "999999999",
+
+              endereco:
+                "Rua Central",
+
+              numero:
+                "100",
+
+              bairro:
+                "Centro",
+
+              cidade:
+                "Santa Maria",
+
+              cep:
+                "97000000",
+
+              convenio:
+                "Unimed",
+
+              observacoes:
+                "",
+
+              status:
+                "Ativo",
+            },
+          ];
+    });
+
+  const [formData, setFormData] =
+    useState({
+
+      nome: "",
+
+      tipo: "Ambos",
+
+      cpf: "",
+
+      rg: "",
+
+      estadoCivil: "Solteiro(a)",
+
+      nacionalidade: "",
+
+      profissao: "",
+
+      email: "",
+
+      autorizacao:
+        "Autorizado Retirada",
+
+      ddi: "+55",
+
+      ddd: "",
+
+      telefone: "",
+
+      telefone2: "",
+
+      endereco: "",
+
+      numero: "",
+
+      bairro: "",
+
+      cidade: "",
+
+      cep: "",
+
+      convenio: "",
+
+      observacoes: "",
+
+      status: "Ativo",
+    });
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        responsaveis
+      )
+    );
+
+  }, [responsaveis]);
 
   const filteredResponsaveis =
     useMemo(() => {
@@ -171,10 +189,7 @@ export default function Responsaveis() {
               ) ||
 
             responsavel.cpf
-              .toLowerCase()
-              .includes(
-                search.toLowerCase()
-              ) ||
+              .includes(search) ||
 
             responsavel.email
               .toLowerCase()
@@ -192,9 +207,56 @@ export default function Responsaveis() {
 
   function resetForm() {
 
-    setEditingId(null);
+    setEditingResponsavelId(
+      null
+    );
 
-    setForm(emptyForm);
+    setFormData({
+
+      nome: "",
+
+      tipo: "Ambos",
+
+      cpf: "",
+
+      rg: "",
+
+      estadoCivil:
+        "Solteiro(a)",
+
+      nacionalidade: "",
+
+      profissao: "",
+
+      email: "",
+
+      autorizacao:
+        "Autorizado Retirada",
+
+      ddi: "+55",
+
+      ddd: "",
+
+      telefone: "",
+
+      telefone2: "",
+
+      endereco: "",
+
+      numero: "",
+
+      bairro: "",
+
+      cidade: "",
+
+      cep: "",
+
+      convenio: "",
+
+      observacoes: "",
+
+      status: "Ativo",
+    });
   }
 
   function openNewModal() {
@@ -208,97 +270,79 @@ export default function Responsaveis() {
     responsavel
   ) {
 
-    setEditingId(
+    setEditingResponsavelId(
       responsavel.id
     );
 
-    setForm(
-      responsavel
-    );
+    setFormData({
+
+      nome:
+        responsavel.nome,
+
+      tipo:
+        responsavel.tipo,
+
+      cpf:
+        responsavel.cpf,
+
+      rg:
+        responsavel.rg,
+
+      estadoCivil:
+        responsavel.estadoCivil,
+
+      nacionalidade:
+        responsavel.nacionalidade,
+
+      profissao:
+        responsavel.profissao,
+
+      email:
+        responsavel.email,
+
+      autorizacao:
+        responsavel.autorizacao,
+
+      ddi:
+        responsavel.ddi,
+
+      ddd:
+        responsavel.ddd,
+
+      telefone:
+        responsavel.telefone,
+
+      telefone2:
+        responsavel.telefone2,
+
+      endereco:
+        responsavel.endereco,
+
+      numero:
+        responsavel.numero,
+
+      bairro:
+        responsavel.bairro,
+
+      cidade:
+        responsavel.cidade,
+
+      cep:
+        responsavel.cep,
+
+      convenio:
+        responsavel.convenio,
+
+      observacoes:
+        responsavel.observacoes,
+
+      status:
+        responsavel.status,
+    });
 
     setIsModalOpen(true);
   }
-
-  function handleSubmit(e) {
-
-    e.preventDefault();
-
-    if (
-      !form.nome ||
-      !form.cpf ||
-      !form.email
-    ) {
-
-      alert(
-        "Preencha os campos obrigatórios."
-      );
-
-      return;
-    }
-
-    const numeroResponsavel =
-      String(
-        responsaveis.length + 1
-      ).padStart(4, "0");
-
-    const codigoResponsavel =
-      `RESP-2026-${numeroResponsavel}`;
-
-    const responsavelData = {
-
-      ...form,
-
-      id:
-        editingId ||
-        crypto.randomUUID(),
-
-      codigo:
-        editingId
-
-          ? form.codigo
-
-          : codigoResponsavel,
-
-      carteirinha:
-        editingId
-
-          ? form.carteirinha
-
-          : codigoResponsavel,
-    };
-
-    if (editingId) {
-
-      setResponsaveis(
-        (prev) =>
-
-          prev.map(
-            (item) =>
-
-              item.id === editingId
-
-                ? responsavelData
-
-                : item
-          )
-      );
-
-    } else {
-
-      setResponsaveis(
-        (prev) => [
-          ...prev,
-          responsavelData,
-        ]
-      );
-    }
-
-    resetForm();
-
-    setIsModalOpen(false);
-  }
-
-  function handleRemoveResponsavel(
+    function handleRemoveResponsavel(
     id,
     nome
   ) {
@@ -328,21 +372,21 @@ export default function Responsaveis() {
       (prev) =>
 
         prev.map(
-          (item) => {
+          (responsavel) => {
 
             if (
-              item.id !== id
+              responsavel.id !== id
             ) {
 
-              return item;
+              return responsavel;
             }
 
             return {
 
-              ...item,
+              ...responsavel,
 
               status:
-                item.status ===
+                responsavel.status ===
                 "Ativo"
 
                   ? "Inativo"
@@ -354,65 +398,83 @@ export default function Responsaveis() {
     );
   }
 
-  const selectStyles = {
+  function generateCode() {
 
-    control: (base) => ({
-      ...base,
+    const total =
+      responsaveis.length + 1;
 
-      backgroundColor:
-        "#27272a",
+    return `RESP-2026-${String(
+      total
+    ).padStart(4, "0")}`;
+  }
 
-      borderColor:
-        "#3f3f46",
+  function handleSubmit(e) {
 
-      minHeight:
-        "56px",
+    e.preventDefault();
 
-      borderRadius:
-        "12px",
-    }),
+    if (
+      !formData.nome ||
+      !formData.cpf
+    ) {
 
-    menu: (base) => ({
-      ...base,
+      alert(
+        "Preencha os campos obrigatórios."
+      );
 
-      backgroundColor:
-        "#18181b",
-    }),
+      return;
+    }
 
-    singleValue: (base) => ({
-      ...base,
+    const responsavelData = {
 
-      color:
-        "#ffffff",
-    }),
+      id:
+        editingResponsavelId ||
+        crypto.randomUUID(),
 
-    input: (base) => ({
-      ...base,
+      codigo:
+        editingResponsavelId
 
-      color:
-        "#ffffff",
-    }),
+          ? responsaveis.find(
+              (item) =>
+                item.id ===
+                editingResponsavelId
+            )?.codigo
 
-    option: (
-      base,
-      state
-    ) => ({
-      ...base,
+          : generateCode(),
 
-      backgroundColor:
-        state.isFocused
+      ...formData,
+    };
 
-          ? "#3f3f46"
+    if (editingResponsavelId) {
 
-          : "#18181b",
+      setResponsaveis(
+        (prev) =>
 
-      color:
-        "#ffffff",
+          prev.map(
+            (item) =>
 
-      cursor:
-        "pointer",
-    }),
-  };
+              item.id ===
+              editingResponsavelId
+
+                ? responsavelData
+
+                : item
+          )
+      );
+
+    } else {
+
+      setResponsaveis(
+        (prev) => [
+          ...prev,
+          responsavelData,
+        ]
+      );
+    }
+
+    resetForm();
+
+    setIsModalOpen(false);
+  }
 
   return (
 
@@ -477,7 +539,9 @@ export default function Responsaveis() {
       </div>
 
       <ResponsaveisCards
-        responsaveis={responsaveis}
+        responsaveis={
+          responsaveis
+        }
       />
 
       <ResponsaveisTable
@@ -503,11 +567,7 @@ export default function Responsaveis() {
         }
       />
 
-      <ResponsaveisModal
-
-        responsaveis={
-          responsaveis
-        }
+      <ResponsavelModal
 
         isModalOpen={
           isModalOpen
@@ -517,24 +577,18 @@ export default function Responsaveis() {
           setIsModalOpen
         }
 
-        editingId={
-          editingId
+        formData={formData}
+
+        setFormData={
+          setFormData
         }
-
-        form={form}
-
-        setForm={setForm}
 
         handleSubmit={
           handleSubmit
         }
 
-        resetForm={
-          resetForm
-        }
-
-        selectStyles={
-          selectStyles
+        editingResponsavelId={
+          editingResponsavelId
         }
       />
 

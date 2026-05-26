@@ -22,6 +22,8 @@ export default function AlunosTable({
 
   handleRemoveStudent,
 
+  handleEditStudent,
+
 }) {
 
   return (
@@ -280,6 +282,11 @@ export default function AlunosTable({
                     ">
 
                       <button
+                        onClick={() =>
+                          handleEditStudent(
+                            student
+                          )
+                        }
                         className="
                           p-2
 

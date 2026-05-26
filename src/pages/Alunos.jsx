@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -15,83 +16,61 @@ import AlunosModal from "../components/alunos/AlunosModal";
 
 export default function Alunos() {
 
-  const [responsaveisDisponiveis] =
-    useState([
+  const STORAGE_KEY =
+    "erp-escolar-alunos";
 
-      {
-        id: crypto.randomUUID(),
-        nome: "Mariana Silva",
-      },
+  const TURMAS_KEY =
+    "erp-escolar-turmas";
 
-      {
-        id: crypto.randomUUID(),
-        nome: "Carlos Souza",
-      },
+  const RESPONSAVEIS_KEY =
+    "erp-escolar-responsaveis";
 
-      {
-        id: crypto.randomUUID(),
-        nome: "Ana Oliveira",
-      },
-    ]);
+  const [editingStudentId, setEditingStudentId] =
+    useState(null);
+
+  const [
+    responsaveisDisponiveis,
+    setResponsaveisDisponiveis,
+  ] = useState([]);
 
   const [
     turmasDisponiveis,
     setTurmasDisponiveis,
-  ] = useState([
+  ] = useState(() => {
 
-    "Turma do Sol",
+    const savedTurmas =
+      localStorage.getItem(
+        TURMAS_KEY
+      );
 
-    "Turma Arco-Íris",
+    return savedTurmas
 
-    "Turma da Floresta",
-  ]);
+      ? JSON.parse(savedTurmas)
 
-  const [students, setStudents] =
-    useState([
-      {
-        id:
-          crypto.randomUUID(),
+      : [
 
-        nome:
-          "João Pedro",
-
-        etapa:
-          "Berçário I",
-
-        turma:
           "Turma do Sol",
 
-        responsavelPrincipalId:
-          responsaveisDisponiveis[0].id,
+          "Turma Arco-Íris",
 
-        responsavelPrincipalNome:
-          "Mariana Silva",
+          "Turma da Floresta",
+        ];
+  });
 
-        responsavelSecundarioId:
-          responsaveisDisponiveis[1].id,
+  const [students, setStudents] =
+    useState(() => {
 
-        responsavelSecundarioNome:
-          "Carlos Souza",
+      const savedStudents =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
 
-        ddi:
-          "+55",
+      return savedStudents
 
-        ddd:
-          "55",
+        ? JSON.parse(savedStudents)
 
-        telefone:
-          "99999-9999",
-
-        nascimento:
-          "2022-03-10",
-
-        turno:
-          "Integral",
-
-        status:
-          "Ativo",
-      },
-    ]);
+        : [];
+    });
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
@@ -138,6 +117,81 @@ export default function Alunos() {
 
   const [search, setSearch] =
     useState("");
+
+  useEffect(() => {
+
+    loadResponsaveis();
+
+    function handleStorageChange(
+      event
+    ) {
+
+      if (
+        event.key ===
+        RESPONSAVEIS_KEY
+      ) {
+
+        loadResponsaveis();
+      }
+    }
+
+    window.addEventListener(
+      "storage",
+      handleStorageChange
+    );
+
+    return () => {
+
+      window.removeEventListener(
+        "storage",
+        handleStorageChange
+      );
+    };
+
+  }, []);
+
+  function loadResponsaveis() {
+
+    const savedResponsaveis =
+      localStorage.getItem(
+        RESPONSAVEIS_KEY
+      );
+
+    if (!savedResponsaveis) {
+
+      setResponsaveisDisponiveis(
+        []
+      );
+
+      return;
+    }
+
+    setResponsaveisDisponiveis(
+      JSON.parse(
+        savedResponsaveis
+      )
+    );
+  }
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(students)
+    );
+
+  }, [students]);
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      TURMAS_KEY,
+      JSON.stringify(
+        turmasDisponiveis
+      )
+    );
+
+  }, [turmasDisponiveis]);
 
   const filteredStudents =
     useMemo(() => {
@@ -226,6 +280,8 @@ export default function Alunos() {
 
   function resetForm() {
 
+    setEditingStudentId(null);
+
     setNome("");
 
     setEtapa("Berçário I");
@@ -251,7 +307,50 @@ export default function Alunos() {
     setStatus("Ativo");
   }
 
-  function handleAddTurma() {
+  function openNewStudentModal() {
+
+    loadResponsaveis();
+
+    resetForm();
+
+    setIsModalOpen(true);
+  }
+
+  function handleEditStudent(student) {
+
+    loadResponsaveis();
+
+    setEditingStudentId(student.id);
+
+    setNome(student.nome);
+
+    setEtapa(student.etapa);
+
+    setTurma(student.turma);
+
+    setResponsavelPrincipalId(
+      student.responsavelPrincipalId
+    );
+
+    setResponsavelSecundarioId(
+      student.responsavelSecundarioId
+    );
+
+    setDdi(student.ddi);
+
+    setDdd(student.ddd);
+
+    setTelefone(student.telefone);
+
+    setNascimento(student.nascimento);
+
+    setTurno(student.turno);
+
+    setStatus(student.status);
+
+    setIsModalOpen(true);
+  }
+    function handleAddTurma() {
 
     if (!novaTurma) {
       return;
@@ -407,9 +506,10 @@ export default function Alunos() {
           responsavelSecundarioId
       );
 
-    const newStudent = {
+    const studentData = {
 
       id:
+        editingStudentId ||
         crypto.randomUUID(),
 
       nome,
@@ -441,12 +541,32 @@ export default function Alunos() {
       status,
     };
 
-    setStudents(
-      (prev) => [
-        ...prev,
-        newStudent,
-      ]
-    );
+    if (editingStudentId) {
+
+      setStudents(
+        (prev) =>
+
+          prev.map(
+            (student) =>
+
+              student.id ===
+              editingStudentId
+
+                ? studentData
+
+                : student
+          )
+      );
+
+    } else {
+
+      setStudents(
+        (prev) => [
+          ...prev,
+          studentData,
+        ]
+      );
+    }
 
     resetForm();
 
@@ -490,8 +610,8 @@ export default function Alunos() {
         </div>
 
         <button
-          onClick={() =>
-            setIsModalOpen(true)
+          onClick={
+            openNewStudentModal
           }
           className="
             flex items-center gap-3
@@ -541,6 +661,10 @@ export default function Alunos() {
 
         handleRemoveStudent={
           handleRemoveStudent
+        }
+
+        handleEditStudent={
+          handleEditStudent
         }
       />
 

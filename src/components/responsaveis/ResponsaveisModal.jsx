@@ -22,17 +22,13 @@ export default function ResponsaveisModal({
 
   setIsModalOpen,
 
-  editingId,
+  editingResponsavelId,
 
-  form,
+  formData,
 
-  setForm,
+  setFormData,
 
   handleSubmit,
-
-  resetForm,
-
-  selectStyles,
 
 }) {
 
@@ -45,7 +41,7 @@ export default function ResponsaveisModal({
     value
   ) {
 
-    setForm(
+    setFormData(
       (prev) => ({
         ...prev,
         [field]: value,
@@ -53,10 +49,90 @@ export default function ResponsaveisModal({
     );
   }
 
+  const selectStyles = {
+
+    control: (base) => ({
+
+      ...base,
+
+      backgroundColor:
+        "#27272a",
+
+      borderColor:
+        "#3f3f46",
+
+      borderRadius:
+        "0.75rem",
+
+      minHeight:
+        "58px",
+
+      boxShadow:
+        "none",
+
+      color:
+        "white",
+    }),
+
+    menu: (base) => ({
+
+      ...base,
+
+      backgroundColor:
+        "#18181b",
+
+      border:
+        "1px solid #3f3f46",
+
+      overflow:
+        "hidden",
+    }),
+
+    option: (
+      base,
+      state
+    ) => ({
+
+      ...base,
+
+      backgroundColor:
+        state.isFocused
+
+          ? "#2563eb"
+
+          : "#18181b",
+
+      color:
+        "white",
+
+      cursor:
+        "pointer",
+    }),
+
+    singleValue: (
+      base
+    ) => ({
+
+      ...base,
+
+      color:
+        "white",
+    }),
+
+    input: (base) => ({
+
+      ...base,
+
+      color:
+        "white",
+    }),
+  };
+
   return (
 
     <div className="
       fixed inset-0
+
       bg-black/70
       backdrop-blur-sm
 
@@ -100,7 +176,7 @@ export default function ResponsaveisModal({
             ">
 
               {
-                editingId
+                editingResponsavelId
 
                   ? "Editar Responsável"
 
@@ -123,12 +199,13 @@ export default function ResponsaveisModal({
           <button
             onClick={() => {
 
-              resetForm();
-
-              setIsModalOpen(false);
+              setIsModalOpen(
+                false
+              );
             }}
             className="
               p-3
+
               rounded-xl
 
               bg-zinc-800
@@ -157,7 +234,7 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Nome completo"
-            value={form.nome}
+            value={formData.nome}
             onChange={(e) =>
               handleChange(
                 "nome",
@@ -167,13 +244,15 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
 
           <select
-            value={form.tipo}
+            value={formData.tipo}
             onChange={(e) =>
               handleChange(
                 "tipo",
@@ -183,7 +262,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           >
@@ -207,7 +288,7 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="CPF"
-            value={form.cpf}
+            value={formData.cpf}
             onChange={(e) =>
               handleChange(
                 "cpf",
@@ -217,7 +298,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -225,7 +308,7 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="RG"
-            value={form.rg}
+            value={formData.rg}
             onChange={(e) =>
               handleChange(
                 "rg",
@@ -235,13 +318,15 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
 
           <select
-            value={form.estadoCivil}
+            value={formData.estadoCivil}
             onChange={(e) =>
               handleChange(
                 "estadoCivil",
@@ -251,7 +336,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           >
@@ -275,7 +362,9 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Nacionalidade"
-            value={form.nacionalidade}
+            value={
+              formData.nacionalidade
+            }
             onChange={(e) =>
               handleChange(
                 "nacionalidade",
@@ -285,7 +374,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -293,7 +384,7 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Profissão"
-            value={form.profissao}
+            value={formData.profissao}
             onChange={(e) =>
               handleChange(
                 "profissao",
@@ -303,7 +394,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -311,7 +404,7 @@ export default function ResponsaveisModal({
           <input
             type="email"
             placeholder="E-mail"
-            value={form.email}
+            value={formData.email}
             onChange={(e) =>
               handleChange(
                 "email",
@@ -321,72 +414,42 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
 
           <select
             value={
-              form.responsavelSecundario
+              formData.autorizacao
             }
-
             onChange={(e) =>
               handleChange(
-                "responsavelSecundario",
-                e.target.value
-              )
-            }
-
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          >
-
-            <option value="">
-              Responsável Secundário
-            </option>
-
-            {responsaveis.map(
-              (responsavel) => (
-
-                <option
-                  key={responsavel.id}
-                  value={responsavel.nome}
-                >
-
-                  {responsavel.nome}
-
-                </option>
-              )
-            )}
-
-          </select>
-
-          <select
-            value={form.autorizadoRetirada}
-            onChange={(e) =>
-              handleChange(
-                "autorizadoRetirada",
+                "autorizacao",
                 e.target.value
               )
             }
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           >
 
-            <option value="Sim">
+            <option value="
+              Autorizado Retirada
+            ">
               Autorizado Retirada
             </option>
 
-            <option value="Não">
+            <option value="
+              Não Autorizado
+            ">
               Não Autorizado
             </option>
 
@@ -398,6 +461,7 @@ export default function ResponsaveisModal({
             grid
             grid-cols-1
             md:grid-cols-4
+
             gap-3
           ">
 
@@ -407,32 +471,33 @@ export default function ResponsaveisModal({
                 paises.find(
                   (pais) =>
                     pais.value ===
-                    form.ddiTelefone
+                    formData.ddi
                 )
               }
               onChange={(selected) =>
                 handleChange(
-                  "ddiTelefone",
+                  "ddi",
                   selected.value
                 )
               }
               styles={selectStyles}
             />
-
             <input
               type="text"
               placeholder="DDD"
-              value={form.dddTelefone}
+              value={formData.ddd}
               onChange={(e) =>
                 handleChange(
-                  "dddTelefone",
+                  "ddd",
                   e.target.value
                 )
               }
               className="
                 bg-zinc-800
                 border border-zinc-700
+
                 rounded-xl
+
                 px-4 py-4
               "
             />
@@ -440,7 +505,9 @@ export default function ResponsaveisModal({
             <input
               type="text"
               placeholder="Telefone"
-              value={form.telefone}
+              value={
+                formData.telefone
+              }
               onChange={(e) =>
                 handleChange(
                   "telefone",
@@ -450,25 +517,31 @@ export default function ResponsaveisModal({
               className="
                 bg-zinc-800
                 border border-zinc-700
+
                 rounded-xl
+
                 px-4 py-4
               "
             />
 
             <input
               type="text"
-              placeholder="WhatsApp"
-              value={form.whatsapp}
+              placeholder="Telefone secundário"
+              value={
+                formData.telefone2
+              }
               onChange={(e) =>
                 handleChange(
-                  "whatsapp",
+                  "telefone2",
                   e.target.value
                 )
               }
               className="
                 bg-zinc-800
                 border border-zinc-700
+
                 rounded-xl
+
                 px-4 py-4
               "
             />
@@ -478,7 +551,9 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Endereço"
-            value={form.endereco}
+            value={
+              formData.endereco
+            }
             onChange={(e) =>
               handleChange(
                 "endereco",
@@ -488,7 +563,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -496,7 +573,9 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Número"
-            value={form.numero}
+            value={
+              formData.numero
+            }
             onChange={(e) =>
               handleChange(
                 "numero",
@@ -506,7 +585,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -514,7 +595,9 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Bairro"
-            value={form.bairro}
+            value={
+              formData.bairro
+            }
             onChange={(e) =>
               handleChange(
                 "bairro",
@@ -524,7 +607,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -532,7 +617,9 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="Cidade"
-            value={form.cidade}
+            value={
+              formData.cidade
+            }
             onChange={(e) =>
               handleChange(
                 "cidade",
@@ -542,7 +629,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
@@ -550,7 +639,9 @@ export default function ResponsaveisModal({
           <input
             type="text"
             placeholder="CEP"
-            value={form.cep}
+            value={
+              formData.cep
+            }
             onChange={(e) =>
               handleChange(
                 "cep",
@@ -560,67 +651,57 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           />
 
           <input
             type="text"
-            placeholder="Plano de Saúde"
-            value={form.planoSaude}
+            placeholder="Convênio"
+            value={
+              formData.convenio
+            }
             onChange={(e) =>
               handleChange(
-                "planoSaude",
+                "convenio",
                 e.target.value
               )
             }
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
-            "
-          />
-
-          <input
-            type="text"
-            value={
-              editingId
-
-                ? form.carteirinha
-
-                : "Gerado automaticamente"
-            }
-
-            disabled
-
-            className="
-              bg-zinc-900
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-              text-zinc-400
-              cursor-not-allowed
             "
           />
 
           <textarea
-            placeholder="Observações"
-            value={form.observacoes}
+            placeholder="
+              Observações institucionais
+            "
+            value={
+              formData.observacoes
+            }
             onChange={(e) =>
               handleChange(
                 "observacoes",
                 e.target.value
               )
             }
-            rows={4}
+            rows={5}
             className="
               md:col-span-3
 
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
 
               resize-none
@@ -628,7 +709,7 @@ export default function ResponsaveisModal({
           />
 
           <select
-            value={form.status}
+            value={formData.status}
             onChange={(e) =>
               handleChange(
                 "status",
@@ -638,7 +719,9 @@ export default function ResponsaveisModal({
             className="
               bg-zinc-800
               border border-zinc-700
+
               rounded-xl
+
               px-4 py-4
             "
           >
@@ -667,16 +750,17 @@ export default function ResponsaveisModal({
 
                 transition
 
-                rounded-xl
+                py-5
 
-                px-6 py-4
+                rounded-2xl
 
                 font-bold
+                text-lg
               "
             >
 
               {
-                editingId
+                editingResponsavelId
 
                   ? "Salvar Alterações"
 
@@ -693,4 +777,4 @@ export default function ResponsaveisModal({
 
     </div>
   );
-}
+}            
