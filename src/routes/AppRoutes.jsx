@@ -20,6 +20,8 @@ import Alunos from "../pages/Alunos";
 
 import Responsaveis from "../pages/Responsaveis";
 
+import Matriculas from "../pages/Matriculas";
+
 export default function AppRoutes() {
 
   return (
@@ -65,6 +67,11 @@ export default function AppRoutes() {
           <Route
             path="responsaveis"
             element={<Responsaveis />}
+          />
+
+          <Route
+            path="matriculas"
+            element={<Matriculas />}
           />
 
         </Route>

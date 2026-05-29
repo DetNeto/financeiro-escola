@@ -232,6 +232,19 @@ export default function MainLayout() {
               </NavLink>
 
               <NavLink
+                to="/matriculas"
+                className={navItemClass}
+              >
+
+                <ClipboardList size={20} />
+
+                <span>
+                  Matrículas
+                </span>
+
+              </NavLink>
+
+              <NavLink
                 to="/turmas"
                 className={navItemClass}
               >

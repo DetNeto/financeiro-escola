@@ -1,14 +1,12 @@
-import Select from "react-select";
-
 import {
+
   X,
-  Trash2,
-} from "lucide-react";
 
-import {
-  etapas,
-  paises,
-} from "./constants";
+  Plus,
+
+  Trash2,
+
+} from "lucide-react";
 
 export default function AlunosModal({
 
@@ -16,21 +14,9 @@ export default function AlunosModal({
 
   setIsModalOpen,
 
-  nome,
+  formData,
 
-  setNome,
-
-  etapa,
-
-  setEtapa,
-
-  turma,
-
-  setTurma,
-
-  novaTurma,
-
-  setNovaTurma,
+  handleChange,
 
   turmasDisponiveis,
 
@@ -38,39 +24,7 @@ export default function AlunosModal({
 
   handleRemoveTurma,
 
-  responsavelPrincipalId,
-
-  setResponsavelPrincipalId,
-
-  responsavelSecundarioId,
-
-  setResponsavelSecundarioId,
-
   responsaveisDisponiveis,
-
-  ddi,
-
-  setDdi,
-
-  ddd,
-
-  setDdd,
-
-  telefone,
-
-  setTelefone,
-
-  nascimento,
-
-  setNascimento,
-
-  turno,
-
-  setTurno,
-
-  status,
-
-  setStatus,
 
   handleSubmit,
 
@@ -80,71 +34,13 @@ export default function AlunosModal({
     return null;
   }
 
-  const selectStyles = {
-
-    control: (base) => ({
-      ...base,
-
-      backgroundColor:
-        "#27272a",
-
-      borderColor:
-        "#3f3f46",
-
-      minHeight:
-        "56px",
-
-      borderRadius:
-        "12px",
-    }),
-
-    menu: (base) => ({
-      ...base,
-
-      backgroundColor:
-        "#18181b",
-    }),
-
-    singleValue: (base) => ({
-      ...base,
-
-      color:
-        "#ffffff",
-    }),
-
-    input: (base) => ({
-      ...base,
-
-      color:
-        "#ffffff",
-    }),
-
-    option: (
-      base,
-      state
-    ) => ({
-      ...base,
-
-      backgroundColor:
-        state.isFocused
-
-          ? "#3f3f46"
-
-          : "#18181b",
-
-      color:
-        "#ffffff",
-
-      cursor:
-        "pointer",
-    }),
-  };
-
   return (
 
     <div className="
       fixed inset-0
+
       bg-black/70
+
       backdrop-blur-sm
 
       flex
@@ -152,6 +48,8 @@ export default function AlunosModal({
       justify-center
 
       z-50
+
+      p-4
     ">
 
       <div className="
@@ -162,21 +60,22 @@ export default function AlunosModal({
         rounded-3xl
 
         w-full
-        max-w-6xl
+        max-w-5xl
 
-        max-h-[90vh]
+        max-h-[95vh]
 
         overflow-y-auto
-
-        p-8
       ">
 
         <div className="
           flex
-          justify-between
           items-center
+          justify-between
 
-          mb-8
+          p-8
+
+          border-b
+          border-zinc-800
         ">
 
           <div>
@@ -186,16 +85,16 @@ export default function AlunosModal({
               font-black
             ">
 
-              Novo Aluno
+              Cadastro de Aluno
 
             </h2>
 
             <p className="
               text-zinc-400
-              mt-2
+              mt-1
             ">
 
-              Cadastro institucional do aluno.
+              Informações acadêmicas e responsáveis.
 
             </p>
 
@@ -206,18 +105,14 @@ export default function AlunosModal({
               setIsModalOpen(false)
             }
             className="
-              p-3
-
-              rounded-xl
-
-              bg-zinc-800
-              hover:bg-zinc-700
+              text-zinc-400
+              hover:text-white
 
               transition
             "
           >
 
-            <X size={22} />
+            <X size={28} />
 
           </button>
 
@@ -226,419 +121,791 @@ export default function AlunosModal({
         <form
           onSubmit={handleSubmit}
           className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            gap-5
+            p-8
+            space-y-8
           "
         >
 
-          <input
-            type="text"
-            placeholder="Nome do aluno"
-            value={nome}
-            onChange={(e) =>
-              setNome(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          />
-
-          <input
-            type="date"
-            value={nascimento}
-            onChange={(e) =>
-              setNascimento(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          />
-
-          <select
-            value={etapa}
-            onChange={(e) =>
-              setEtapa(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          >
-
-            {etapas.map(
-              (item) => (
-
-                <option
-                  key={item}
-                  value={item}
-                >
-
-                  {item}
-
-                </option>
-              )
-            )}
-
-          </select>
-
-          <select
-            value={turno}
-            onChange={(e) =>
-              setTurno(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          >
-
-            <option value="Integral">
-              Integral
-            </option>
-
-            <option value="Manhã">
-              Manhã
-            </option>
-
-            <option value="Tarde">
-              Tarde
-            </option>
-
-          </select>
-
           <div className="
-            md:col-span-2
+            grid
+            grid-cols-1
+            md:grid-cols-2
+            gap-6
           ">
 
-            <div className="
-              grid
-              grid-cols-1
-              md:grid-cols-3
-              gap-3
-            ">
+            <div>
 
-              <select
-                value={turma}
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Nome do Aluno *
+
+              </label>
+
+              <input
+                type="text"
+                value={formData.nome}
                 onChange={(e) =>
-                  setTurma(
+
+                  handleChange(
+                    "nome",
                     e.target.value
                   )
                 }
                 className="
-                  bg-zinc-800
-                  border border-zinc-700
-                  rounded-xl
-                  px-4 py-4
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Data de Nascimento *
+
+              </label>
+
+              <input
+                type="date"
+                value={
+                  formData.nascimento
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "nascimento",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+          </div>
+
+          <div className="
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-6
+          ">
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Etapa
+
+              </label>
+
+              <select
+                value={formData.etapa}
+                onChange={(e) =>
+
+                  handleChange(
+                    "etapa",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
                 "
               >
 
-                <option value="">
-                  Selecione a turma
+                <option>
+                  Berçário I
                 </option>
 
-                {turmasDisponiveis.map(
-                  (item) => (
+                <option>
+                  Berçário II
+                </option>
 
-                    <option
-                      key={item}
-                      value={item}
-                    >
+                <option>
+                  Maternal
+                </option>
 
-                      {item}
-
-                    </option>
-                  )
-                )}
+                <option>
+                  Jardim
+                </option>
 
               </select>
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Turno
+
+              </label>
+
+              <select
+                value={formData.turno}
+                onChange={(e) =>
+
+                  handleChange(
+                    "turno",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              >
+
+                <option>
+                  Integral
+                </option>
+
+                <option>
+                  Manhã
+                </option>
+
+                <option>
+                  Tarde
+                </option>
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Status
+
+              </label>
+
+              <select
+                value={formData.status}
+                onChange={(e) =>
+
+                  handleChange(
+                    "status",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              >
+
+                <option>
+                  Ativo
+                </option>
+
+                <option>
+                  Inativo
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div className="
+            space-y-4
+          ">
+
+            <div className="
+              flex
+              items-center
+              justify-between
+            ">
+
+              <h3 className="
+                text-xl
+                font-bold
+              ">
+
+                Turma
+
+              </h3>
+
+            </div>
+
+            <div className="
+              flex
+              gap-3
+            ">
 
               <input
                 type="text"
                 placeholder="Nova turma"
-                value={novaTurma}
+                value={
+                  formData.novaTurma
+                }
                 onChange={(e) =>
-                  setNovaTurma(
+
+                  handleChange(
+                    "novaTurma",
                     e.target.value
                   )
                 }
                 className="
-                  bg-zinc-800
-                  border border-zinc-700
-                  rounded-xl
-                  px-4 py-4
+                  flex-1
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
                 "
               />
 
               <button
                 type="button"
-                onClick={handleAddTurma}
+                onClick={
+                  handleAddTurma
+                }
                 className="
                   bg-blue-600
                   hover:bg-blue-500
 
                   transition
 
-                  rounded-xl
+                  px-5
 
-                  font-bold
+                  rounded-2xl
                 "
               >
 
-                Adicionar Turma
+                <Plus size={20} />
 
               </button>
 
             </div>
 
             <div className="
-              flex
-              flex-wrap
-              gap-2
-              mt-4
+              grid
+              grid-cols-1
+              md:grid-cols-2
+              gap-3
             ">
 
-              {turmasDisponiveis.map(
-                (item) => (
+              {
+                turmasDisponiveis.map(
+                  (item) => (
 
-                  <div
-                    key={item}
-                    className="
-                      flex
-                      items-center
-                      gap-2
-
-                      bg-zinc-800
-
-                      border border-zinc-700
-
-                      rounded-full
-
-                      px-4 py-2
-                    "
-                  >
-
-                    <span>
-                      {item}
-                    </span>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleRemoveTurma(
-                          item
-                        )
-                      }
+                    <div
+                      key={item}
                       className="
-                        text-red-400
-                        hover:text-red-300
+                        flex
+                        items-center
+                        justify-between
+
+                        bg-zinc-950
+
+                        border
+                        border-zinc-800
+
+                        rounded-2xl
+
+                        px-4
+                        py-3
                       "
                     >
 
-                      <Trash2 size={16} />
+                      <button
+                        type="button"
+                        onClick={() =>
 
-                    </button>
+                          handleChange(
+                            "turma",
+                            item
+                          )
+                        }
+                        className={`
+                          text-left
+                          flex-1
 
-                  </div>
+                          transition
+
+                          ${
+                            formData.turma === item
+
+                              ? "text-blue-400 font-bold"
+
+                              : "text-white"
+                          }
+                        `}
+                      >
+
+                        {item}
+
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleRemoveTurma(
+                            item
+                          )
+                        }
+                        className="
+                          text-red-400
+                          hover:text-red-300
+                        "
+                      >
+
+                        <Trash2
+                          size={18}
+                        />
+
+                      </button>
+
+                    </div>
+                  )
                 )
-              )}
+              }
 
             </div>
 
           </div>
 
-          <select
-            value={responsavelPrincipalId}
-            onChange={(e) =>
-              setResponsavelPrincipalId(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          >
-
-            <option value="">
-              Responsável Principal
-            </option>
-
-            {responsaveisDisponiveis.map(
-              (responsavel) => (
-
-                <option
-                  key={responsavel.id}
-                  value={responsavel.id}
-                >
-
-                  {responsavel.nome}
-
-                </option>
-              )
-            )}
-
-          </select>
-
-          <select
-            value={responsavelSecundarioId}
-            onChange={(e) =>
-              setResponsavelSecundarioId(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          >
-
-            <option value="">
-              Responsável Secundário
-            </option>
-
-            {responsaveisDisponiveis.map(
-              (responsavel) => (
-
-                <option
-                  key={responsavel.id}
-                  value={responsavel.id}
-                >
-
-                  {responsavel.nome}
-
-                </option>
-              )
-            )}
-
-          </select>
-
           <div className="
-            md:col-span-2
-
             grid
             grid-cols-1
-            md:grid-cols-3
-            gap-3
+            md:grid-cols-2
+            gap-6
           ">
 
-            <Select
-              options={paises}
-              value={
-                paises.find(
-                  (pais) =>
-                    pais.value === ddi
-                )
-              }
-              onChange={(selected) =>
-                setDdi(
-                  selected.value
-                )
-              }
-              styles={selectStyles}
-            />
+            <div>
 
-            <input
-              type="text"
-              placeholder="DDD"
-              value={ddd}
-              onChange={(e) =>
-                setDdd(
-                  e.target.value
-                )
-              }
-              className="
-                bg-zinc-800
-                border border-zinc-700
-                rounded-xl
-                px-4 py-4
-              "
-            />
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
 
-            <input
-              type="text"
-              placeholder="Telefone"
-              value={telefone}
-              onChange={(e) =>
-                setTelefone(
-                  e.target.value
-                )
-              }
-              className="
-                bg-zinc-800
-                border border-zinc-700
-                rounded-xl
-                px-4 py-4
-              "
-            />
+                Responsável Principal *
+
+              </label>
+
+              <select
+                value={
+                  formData.responsavelPrincipalId
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "responsavelPrincipalId",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              >
+
+                <option value="">
+                  Selecione
+                </option>
+
+                {
+                  responsaveisDisponiveis.map(
+                    (
+                      responsavel
+                    ) => (
+
+                      <option
+                        key={
+                          responsavel.id
+                        }
+                        value={
+                          responsavel.id
+                        }
+                      >
+
+                        {
+                          responsavel.nome
+                        }
+
+                      </option>
+                    )
+                  )
+                }
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Responsável Secundário
+
+              </label>
+
+              <select
+                value={
+                  formData.responsavelSecundarioId
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "responsavelSecundarioId",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              >
+
+                <option value="">
+                  Nenhum
+                </option>
+
+                {
+                  responsaveisDisponiveis.map(
+                    (
+                      responsavel
+                    ) => (
+
+                      <option
+                        key={
+                          responsavel.id
+                        }
+                        value={
+                          responsavel.id
+                        }
+                      >
+
+                        {
+                          responsavel.nome
+                        }
+
+                      </option>
+                    )
+                  )
+                }
+
+              </select>
+
+            </div>
 
           </div>
 
-          <select
-            value={status}
-            onChange={(e) =>
-              setStatus(
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-              rounded-xl
-              px-4 py-4
-            "
-          >
+          <div className="
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-6
+          ">
 
-            <option value="Ativo">
-              Ativo
-            </option>
+            <div>
 
-            <option value="Inativo">
-              Inativo
-            </option>
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
 
-          </select>
+                DDI
+
+              </label>
+
+              <input
+                type="text"
+                value={formData.ddi}
+                onChange={(e) =>
+
+                  handleChange(
+                    "ddi",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                DDD
+
+              </label>
+
+              <input
+                type="text"
+                value={formData.ddd}
+                onChange={(e) =>
+
+                  handleChange(
+                    "ddd",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Telefone / WhatsApp
+
+              </label>
+
+              <input
+                type="text"
+                value={
+                  formData.telefone
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "telefone",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+          </div>
 
           <div className="
-            md:col-span-2
+            flex
+            justify-end
+            gap-4
+            pt-4
           ">
+
+            <button
+              type="button"
+              onClick={() =>
+                setIsModalOpen(false)
+              }
+              className="
+                px-6
+                py-3
+
+                rounded-2xl
+
+                bg-zinc-800
+                hover:bg-zinc-700
+
+                transition
+              "
+            >
+
+              Cancelar
+
+            </button>
 
             <button
               type="submit"
               className="
-                w-full
+                px-6
+                py-3
+
+                rounded-2xl
 
                 bg-blue-600
                 hover:bg-blue-500
 
                 transition
-
-                rounded-xl
-
-                px-6 py-4
 
                 font-bold
               "

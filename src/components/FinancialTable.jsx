@@ -154,11 +154,11 @@ export default function FinancialTable({
                         rounded-full
                       ">
 
-                        🔁 {
-                          formatRecurrence(
-                            item.recurrenceType
-                          )
-                        }
+                       🔁 {
+  formatRecurrence(
+    item.recurrenceType
+  )
+}
 
                       </span>
 
@@ -199,11 +199,123 @@ export default function FinancialTable({
 
                 </td>
 
-                <td className="p-4 font-semibold text-red-400">
+                <td
+  className={`
+    p-4
+    font-semibold
 
-                  {formatCurrency(
-                    item.value
-                  )}
+    ${
+      item.type ===
+      "Receita"
+
+        ? "text-emerald-400"
+
+        : "text-red-400"
+    }
+  `}
+>
+
+                  <div className="flex flex-col">
+
+  <span>
+
+    {
+      formatCurrency(
+        item.updatedValue ||
+        item.value
+      )
+    }
+
+  </span>
+
+  {
+    item.status ===
+      "Vencido" && (
+
+      <span className="
+        text-xs
+        text-red-400
+      ">
+
+        +
+
+        {
+          formatCurrency(
+
+            (
+              item.lateFee || 0
+            ) +
+
+            (
+              item.interest || 0
+            )
+
+          )
+        }
+
+        {" "}
+        encargos
+
+      </span>
+    )
+  }
+
+  {
+    item.collectionStage && (
+
+      <span
+        className={`
+          mt-1
+          text-xs
+          font-semibold
+          px-2
+          py-1
+          rounded-lg
+          inline-flex
+          w-fit
+
+          ${
+            item.collectionColor ===
+            "yellow"
+
+              ? `
+                bg-yellow-500/10
+                text-yellow-400
+              `
+
+              : item.collectionColor ===
+                "orange"
+
+              ? `
+                bg-orange-500/10
+                text-orange-400
+              `
+
+              : item.collectionColor ===
+                "red"
+
+              ? `
+                bg-red-500/10
+                text-red-400
+              `
+
+              : `
+                bg-purple-500/10
+                text-purple-400
+              `
+          }
+        `}
+      >
+
+        {
+          item.collectionStage
+        }
+
+      </span>
+    )
+  }
+
+</div>
 
                 </td>
 

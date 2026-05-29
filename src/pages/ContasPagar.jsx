@@ -1,6 +1,7 @@
 import {
   useMemo,
   useState,
+  useEffect,
 } from "react";
 
 import {
@@ -11,14 +12,14 @@ import FinancialTable from "../components/FinancialTable";
 
 export default function ContasPagar() {
 
-  const {
-    contas,
-    setContas,
-    categories,
-    selectedMonth,
-    selectedYear,
-    isMonthClosed,
-  } = useFinance();
+const {
+  contas,
+  setContas,
+  categories,
+  selectedMonth,
+  selectedYear,
+  isMonthClosed,
+} = useFinance();
 
   const [description, setDescription] =
     useState("");
@@ -77,7 +78,235 @@ export default function ContasPagar() {
     "Dezembro",
   ];
 
-  const filteredContas =
+    useEffect(() => {
+
+  const contasAtualizadas =
+
+    contas.map((conta) => {
+
+        if (
+
+          (
+            conta.status ===
+              "Pendente" ||
+
+            conta.status ===
+              "Vencido"
+          ) &&
+
+          new Date(
+            conta.dueDate
+          ) < new Date()
+
+        ) {
+
+        const today =
+          new Date();
+
+        const dueDate =
+          new Date(
+            conta.dueDate
+          );
+
+        const diffTime =
+          today - dueDate;
+
+        const daysOverdue =
+          Math.max(
+            0,
+            Math.floor(
+              diffTime /
+              (
+                1000 *
+                60 *
+                60 *
+                24
+              )
+            )
+          );
+
+        const originalValue =
+          Number(
+            conta.value
+          );
+
+        const lateFee =
+          originalValue * 0.02;
+
+        const dailyInterestRate =
+          0.00033;
+
+        const interest =
+          originalValue *
+          dailyInterestRate *
+          daysOverdue;
+        const isReceita =
+          conta.type?.toLowerCase() ===
+          "receita";
+        const updatedValue =
+          originalValue +
+          lateFee +
+          interest;
+          console.log(
+          conta.description,
+          conta.type,
+          isReceita
+        );
+
+let collectionStage =
+  "Lembrete";        
+
+let collectionMessage =
+  isReceita
+
+    ? "Sua mensalidade encontra-se em atraso."
+
+    : "TESTE DESPESA";
+
+let collectionColor =
+  "yellow";
+
+        if (
+  daysOverdue >= 5
+) {
+
+  collectionStage =
+    isReceita
+
+      ? "Aviso de Atraso"
+
+      : "Urgente";
+
+  collectionMessage =
+    isReceita
+
+      ? "Seu débito permanece pendente."
+
+      : "Esta despesa requer atenção administrativa.";
+
+  collectionColor =
+    "orange";
+}
+
+        if (
+  daysOverdue >= 15
+) {
+
+  collectionStage =
+    isReceita
+
+      ? "Risco de Protesto"
+
+      : "Crítico";
+
+  collectionMessage =
+    isReceita
+
+      ? "Caso não haja regularização, poderá haver encaminhamento para protesto."
+
+      : "Esta despesa encontra-se em atraso e requer ação imediata.";
+
+  collectionColor =
+    "red";
+}
+
+        if (
+  daysOverdue >= 20
+) {
+
+  collectionStage =
+    isReceita
+
+      ? "Cobrança Extrajudicial"
+
+      : "Pagamento Prioritário";
+
+  collectionMessage =
+    isReceita
+
+      ? "A cobrança poderá ser encaminhada para cobrança extrajudicial."
+
+      : "A regularização desta despesa deve ser priorizada.";
+
+  collectionColor =
+    "red";
+}
+
+        if (
+  daysOverdue >= 30
+) {
+
+  collectionStage =
+    isReceita
+
+      ? "Departamento Jurídico"
+
+      : "Risco Operacional";
+
+  collectionMessage =
+    isReceita
+
+      ? "O caso poderá ser encaminhado ao departamento jurídico."
+
+      : "A despesa apresenta risco operacional para a instituição.";
+
+  collectionColor =
+    "purple";
+}
+        return {
+
+          ...conta,
+
+          status:
+            "Vencido",
+
+          daysOverdue,
+
+          originalValue,
+
+          lateFee,
+
+          interest,
+
+          updatedValue,
+          
+          collectionStage,
+
+          collectionMessage,
+
+          collectionColor,
+        };
+      }
+
+      return conta;
+    });
+
+const hasChanges =
+
+  contasAtualizadas.some(
+    (conta, index) => {
+
+      return (
+
+        JSON.stringify(conta) !==
+
+        JSON.stringify(
+          contas[index]
+        )
+      );
+    }
+  );
+
+  if (hasChanges) {
+
+    setContas(
+      contasAtualizadas
+    );
+  }
+
+}, [contas]);
+
+   const filteredContas =
     useMemo(() => {
 
       return contas.filter((item) => {
@@ -538,10 +767,23 @@ export default function ContasPagar() {
               return {
                 ...item,
                 status:
-                  item.status ===
+
+                  conta.status ===
                   "Pago"
+
                     ? "Pendente"
+
                     : "Pago",
+
+                paidAt:
+
+                  conta.status ===
+                  "Pago"
+
+                ? null
+
+                : new Date()
+                  .toISOString(),
               };
             }
 
@@ -560,75 +802,85 @@ export default function ContasPagar() {
           "Pago" &&
         updatedConta.isRecurring
       ) {
+      
+        const isInstitutionalRecurring =
 
-        const shouldGenerate =
-          window.confirm(
-            "Deseja gerar a próxima recorrência?"
+          updatedConta.source ===
+          "Matricula";
+
+  if (
+    !isInstitutionalRecurring
+  ) {
+
+  const shouldGenerate =
+    window.confirm(
+      "Deseja gerar a próxima recorrência?"
+    );
+
+  if (shouldGenerate) {
+
+    const nextDate =
+      calculateNextDueDate(
+        updatedConta
+      );
+
+    const nextMonth =
+      nextDate.getMonth() + 1;
+
+    const nextYear =
+      nextDate.getFullYear();
+
+    const nextDueDate =
+      nextDate
+        .toISOString()
+        .split("T")[0];
+
+    const alreadyExists =
+      updatedContas.some(
+        (item) => {
+
+          return (
+            item.description ===
+              updatedConta.description &&
+            item.dueDate ===
+              nextDueDate
           );
-
-        if (shouldGenerate) {
-
-          const nextDate =
-            calculateNextDueDate(
-              updatedConta
-            );
-
-          const nextMonth =
-            nextDate.getMonth() + 1;
-
-          const nextYear =
-            nextDate.getFullYear();
-
-          const nextDueDate =
-            nextDate
-              .toISOString()
-              .split("T")[0];
-
-          const alreadyExists =
-            updatedContas.some(
-              (item) => {
-
-                return (
-                  item.description ===
-                    updatedConta.description &&
-                  item.dueDate ===
-                    nextDueDate
-                );
-              }
-            );
-
-          if (!alreadyExists) {
-
-            updatedContas = [
-
-              ...updatedContas,
-
-              {
-                ...updatedConta,
-
-                id:
-                  crypto.randomUUID(),
-
-                dueDate:
-                  nextDueDate,
-
-                month:
-                  nextMonth,
-
-                year:
-                  nextYear,
-
-                status:
-                  "Pendente",
-              },
-            ];
-
-            setSuccessMessage(
-              `Próxima recorrência criada para ${monthNames[nextMonth - 1]}/${nextYear}`
-            );
-          }
         }
-      }
+      );
+
+    if (!alreadyExists) {
+
+      updatedContas = [
+
+        ...updatedContas,
+
+        {
+          ...updatedConta,
+
+          id:
+            crypto.randomUUID(),
+
+          dueDate:
+            nextDueDate,
+
+          month:
+            nextMonth,
+
+          year:
+            nextYear,
+
+          status:
+            "Pendente",
+        },
+      ];
+
+      setSuccessMessage(
+        `Próxima recorrência criada para ${monthNames[nextMonth - 1]}/${nextYear}`
+       );
+    }
+  }
+}
+}
 
       return updatedContas;
     });
@@ -918,6 +1170,10 @@ export default function ContasPagar() {
 
           <option value="Pendente">
             Pendente
+          </option>
+
+          <option value="Vencido">
+            Vencido
           </option>
 
         </select>

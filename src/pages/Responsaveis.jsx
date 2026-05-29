@@ -1,5 +1,4 @@
 import {
-  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -14,165 +13,105 @@ import ResponsaveisTable from "../components/responsaveis/ResponsaveisTable";
 
 import ResponsavelModal from "../components/responsaveis/ResponsaveisModal";
 
+import {
+
+  loadResponsaveis,
+
+  createResponsavel,
+
+  updateResponsavel,
+
+  deleteResponsavel,
+
+  toggleResponsavelStatus,
+
+} from "../services/responsaveisService";
+
 export default function Responsaveis() {
 
-  const STORAGE_KEY =
-    "erp-escolar-responsaveis";
+  const initialFormData = {
+
+    nome: "",
+
+    tipo: "Ambos",
+
+    cpf: "",
+
+    rg: "",
+
+    estadoCivil: "Solteiro(a)",
+
+    nacionalidade: "",
+
+    profissao: "",
+
+    email: "",
+
+    autorizacao:
+      "Autorizado Retirada",
+
+    ddi: "+55",
+
+    ddd: "",
+
+    telefone: "",
+
+    whatsapp: "",
+
+    endereco: "",
+
+    numero: "",
+
+    bairro: "",
+
+    cidade: "",
+
+    cep: "",
+
+    convenio: "",
+
+    observacoes: "",
+
+    status: "Ativo",
+  };
 
   const [search, setSearch] =
     useState("");
 
-  const [editingResponsavelId, setEditingResponsavelId] =
-    useState(null);
+  const [
+    editingResponsavelId,
+    setEditingResponsavelId,
+  ] = useState(null);
 
-  const [isModalOpen, setIsModalOpen] =
-    useState(false);
+  const [
+    isModalOpen,
+    setIsModalOpen,
+  ] = useState(false);
 
-  const [responsaveis, setResponsaveis] =
-    useState(() => {
-
-      const savedResponsaveis =
-        localStorage.getItem(
-          STORAGE_KEY
-        );
-
-      return savedResponsaveis
-
-        ? JSON.parse(
-            savedResponsaveis
-          )
-
-        : [
-            {
-              id:
-                crypto.randomUUID(),
-
-              codigo:
-                "RESP-2026-0001",
-
-              nome:
-                "Mariana Silva",
-
-              tipo:
-                "Ambos",
-
-              cpf:
-                "00000000000",
-
-              rg:
-                "000000000",
-
-              estadoCivil:
-                "Casado(a)",
-
-              nacionalidade:
-                "Brasileira",
-
-              profissao:
-                "Empresária",
-
-              email:
-                "mariana@email.com",
-
-              autorizacao:
-                "Autorizado Retirada",
-
-              ddi:
-                "+55",
-
-              ddd:
-                "55",
-
-              telefone:
-                "999999999",
-
-              telefone2:
-                "999999999",
-
-              endereco:
-                "Rua Central",
-
-              numero:
-                "100",
-
-              bairro:
-                "Centro",
-
-              cidade:
-                "Santa Maria",
-
-              cep:
-                "97000000",
-
-              convenio:
-                "Unimed",
-
-              observacoes:
-                "",
-
-              status:
-                "Ativo",
-            },
-          ];
-    });
+  const [
+    responsaveis,
+    setResponsaveis,
+  ] = useState(() =>
+    loadResponsaveis()
+  );
 
   const [formData, setFormData] =
-    useState({
+    useState(initialFormData);
 
-      nome: "",
+  function handleChange(
+    field,
+    value
+  ) {
 
-      tipo: "Ambos",
+    setFormData(
+      (prev) => ({
 
-      cpf: "",
+        ...prev,
 
-      rg: "",
-
-      estadoCivil: "Solteiro(a)",
-
-      nacionalidade: "",
-
-      profissao: "",
-
-      email: "",
-
-      autorizacao:
-        "Autorizado Retirada",
-
-      ddi: "+55",
-
-      ddd: "",
-
-      telefone: "",
-
-      telefone2: "",
-
-      endereco: "",
-
-      numero: "",
-
-      bairro: "",
-
-      cidade: "",
-
-      cep: "",
-
-      convenio: "",
-
-      observacoes: "",
-
-      status: "Ativo",
-    });
-
-  useEffect(() => {
-
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(
-        responsaveis
-      )
+        [field]: value,
+      })
     );
-
-  }, [responsaveis]);
+  }
 
   const filteredResponsaveis =
     useMemo(() => {
@@ -211,52 +150,9 @@ export default function Responsaveis() {
       null
     );
 
-    setFormData({
-
-      nome: "",
-
-      tipo: "Ambos",
-
-      cpf: "",
-
-      rg: "",
-
-      estadoCivil:
-        "Solteiro(a)",
-
-      nacionalidade: "",
-
-      profissao: "",
-
-      email: "",
-
-      autorizacao:
-        "Autorizado Retirada",
-
-      ddi: "+55",
-
-      ddd: "",
-
-      telefone: "",
-
-      telefone2: "",
-
-      endereco: "",
-
-      numero: "",
-
-      bairro: "",
-
-      cidade: "",
-
-      cep: "",
-
-      convenio: "",
-
-      observacoes: "",
-
-      status: "Ativo",
-    });
+    setFormData(
+      initialFormData
+    );
   }
 
   function openNewModal() {
@@ -277,72 +173,77 @@ export default function Responsaveis() {
     setFormData({
 
       nome:
-        responsavel.nome,
+        responsavel.nome || "",
 
       tipo:
-        responsavel.tipo,
+        responsavel.tipo || "Ambos",
 
       cpf:
-        responsavel.cpf,
+        responsavel.cpf || "",
 
       rg:
-        responsavel.rg,
+        responsavel.rg || "",
 
       estadoCivil:
-        responsavel.estadoCivil,
+        responsavel.estadoCivil || "Solteiro(a)",
 
       nacionalidade:
-        responsavel.nacionalidade,
+        responsavel.nacionalidade || "",
 
       profissao:
-        responsavel.profissao,
+        responsavel.profissao || "",
 
       email:
-        responsavel.email,
+        responsavel.email || "",
 
       autorizacao:
-        responsavel.autorizacao,
+        responsavel.autorizacao || "Autorizado Retirada",
 
       ddi:
-        responsavel.ddi,
+        responsavel.ddi || "+55",
 
       ddd:
-        responsavel.ddd,
+        responsavel.ddd || "",
 
       telefone:
-        responsavel.telefone,
+        responsavel.telefone || "",
 
-      telefone2:
-        responsavel.telefone2,
+      whatsapp:
+        responsavel.whatsapp ||
+
+        responsavel.telefone2 ||
+
+        "",
 
       endereco:
-        responsavel.endereco,
+        responsavel.endereco || "",
 
       numero:
-        responsavel.numero,
+        responsavel.numero || "",
 
       bairro:
-        responsavel.bairro,
+        responsavel.bairro || "",
 
       cidade:
-        responsavel.cidade,
+        responsavel.cidade || "",
 
       cep:
-        responsavel.cep,
+        responsavel.cep || "",
 
       convenio:
-        responsavel.convenio,
+        responsavel.convenio || "",
 
       observacoes:
-        responsavel.observacoes,
+        responsavel.observacoes || "",
 
       status:
-        responsavel.status,
+        responsavel.status || "Ativo",
     });
 
     setIsModalOpen(true);
   }
-    function handleRemoveResponsavel(
+
+  function handleRemoveResponsavel(
     id,
     nome
   ) {
@@ -356,69 +257,50 @@ export default function Responsaveis() {
       return;
     }
 
-    setResponsaveis(
-      (prev) =>
+    const updatedResponsaveis =
+      deleteResponsavel(id);
 
-        prev.filter(
-          (item) =>
-            item.id !== id
-        )
+    setResponsaveis(
+      updatedResponsaveis
     );
   }
 
-  function toggleStatus(id) {
+  function handleToggleStatus(id) {
+
+    const updatedResponsaveis =
+      toggleResponsavelStatus(id);
 
     setResponsaveis(
-      (prev) =>
-
-        prev.map(
-          (responsavel) => {
-
-            if (
-              responsavel.id !== id
-            ) {
-
-              return responsavel;
-            }
-
-            return {
-
-              ...responsavel,
-
-              status:
-                responsavel.status ===
-                "Ativo"
-
-                  ? "Inativo"
-
-                  : "Ativo",
-            };
-          }
-        )
+      updatedResponsaveis
     );
   }
 
-  function generateCode() {
+  function validateForm() {
 
-    const total =
-      responsaveis.length + 1;
+    if (!formData.nome) {
 
-    return `RESP-2026-${String(
-      total
-    ).padStart(4, "0")}`;
+      return "Informe o nome do responsável.";
+    }
+
+    if (!formData.cpf) {
+
+      return "Informe o CPF do responsável.";
+    }
+
+    return null;
   }
 
   function handleSubmit(e) {
 
     e.preventDefault();
 
-    if (
-      !formData.nome ||
-      !formData.cpf
-    ) {
+    const validationError =
+      validateForm();
+
+    if (validationError) {
 
       alert(
-        "Preencha os campos obrigatórios."
+        validationError
       );
 
       return;
@@ -427,49 +309,34 @@ export default function Responsaveis() {
     const responsavelData = {
 
       id:
-        editingResponsavelId ||
-        crypto.randomUUID(),
-
-      codigo:
-        editingResponsavelId
-
-          ? responsaveis.find(
-              (item) =>
-                item.id ===
-                editingResponsavelId
-            )?.codigo
-
-          : generateCode(),
+        editingResponsavelId,
 
       ...formData,
     };
 
-    if (editingResponsavelId) {
+    let updatedResponsaveis =
+      [];
 
-      setResponsaveis(
-        (prev) =>
+    if (
+      editingResponsavelId
+    ) {
 
-          prev.map(
-            (item) =>
-
-              item.id ===
-              editingResponsavelId
-
-                ? responsavelData
-
-                : item
-          )
-      );
+      updatedResponsaveis =
+        updateResponsavel(
+          responsavelData
+        );
 
     } else {
 
-      setResponsaveis(
-        (prev) => [
-          ...prev,
-          responsavelData,
-        ]
-      );
+      updatedResponsaveis =
+        createResponsavel(
+          responsavelData
+        );
     }
+
+    setResponsaveis(
+      updatedResponsaveis
+    );
 
     resetForm();
 
@@ -513,7 +380,9 @@ export default function Responsaveis() {
         </div>
 
         <button
-          onClick={openNewModal}
+          onClick={
+            openNewModal
+          }
           className="
             flex items-center gap-3
 
@@ -555,7 +424,7 @@ export default function Responsaveis() {
         }
 
         toggleStatus={
-          toggleStatus
+          handleToggleStatus
         }
 
         handleEditResponsavel={
@@ -579,8 +448,8 @@ export default function Responsaveis() {
 
         formData={formData}
 
-        setFormData={
-          setFormData
+        handleChange={
+          handleChange
         }
 
         handleSubmit={

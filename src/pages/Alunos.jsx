@@ -14,16 +14,58 @@ import AlunosTable from "../components/alunos/AlunosTable";
 
 import AlunosModal from "../components/alunos/AlunosModal";
 
-export default function Alunos() {
+import {
+  calculateAge,
+} from "../utils/dateUtils";
 
-  const STORAGE_KEY =
-    "erp-escolar-alunos";
+import {
+
+  loadStudents,
+
+  createStudent,
+
+  updateStudent,
+
+  deleteStudent,
+
+  toggleStudentStatus,
+
+} from "../services/alunosService";
+
+export default function Alunos() {
 
   const TURMAS_KEY =
     "erp-escolar-turmas";
 
   const RESPONSAVEIS_KEY =
     "erp-escolar-responsaveis";
+
+  const initialFormData = {
+
+    nome: "",
+
+    etapa: "Berçário I",
+
+    turma: "",
+
+    novaTurma: "",
+
+    responsavelPrincipalId: "",
+
+    responsavelSecundarioId: "",
+
+    ddi: "+55",
+
+    ddd: "",
+
+    telefone: "",
+
+    nascimento: "",
+
+    turno: "Integral",
+
+    status: "Ativo",
+  };
 
   const [editingStudentId, setEditingStudentId] =
     useState(null);
@@ -58,62 +100,15 @@ export default function Alunos() {
   });
 
   const [students, setStudents] =
-    useState(() => {
+    useState(() =>
+      loadStudents()
+    );
 
-      const savedStudents =
-        localStorage.getItem(
-          STORAGE_KEY
-        );
-
-      return savedStudents
-
-        ? JSON.parse(savedStudents)
-
-        : [];
-    });
+  const [formData, setFormData] =
+    useState(initialFormData);
 
   const [isModalOpen, setIsModalOpen] =
     useState(false);
-
-  const [nome, setNome] =
-    useState("");
-
-  const [etapa, setEtapa] =
-    useState("Berçário I");
-
-  const [turma, setTurma] =
-    useState("");
-
-  const [novaTurma, setNovaTurma] =
-    useState("");
-
-  const [
-    responsavelPrincipalId,
-    setResponsavelPrincipalId,
-  ] = useState("");
-
-  const [
-    responsavelSecundarioId,
-    setResponsavelSecundarioId,
-  ] = useState("");
-
-  const [ddi, setDdi] =
-    useState("+55");
-
-  const [ddd, setDdd] =
-    useState("");
-
-  const [telefone, setTelefone] =
-    useState("");
-
-  const [nascimento, setNascimento] =
-    useState("");
-
-  const [turno, setTurno] =
-    useState("Integral");
-
-  const [status, setStatus] =
-    useState("Ativo");
 
   const [search, setSearch] =
     useState("");
@@ -150,6 +145,17 @@ export default function Alunos() {
 
   }, []);
 
+  useEffect(() => {
+
+    localStorage.setItem(
+      TURMAS_KEY,
+      JSON.stringify(
+        turmasDisponiveis
+      )
+    );
+
+  }, [turmasDisponiveis]);
+
   function loadResponsaveis() {
 
     const savedResponsaveis =
@@ -173,25 +179,20 @@ export default function Alunos() {
     );
   }
 
-  useEffect(() => {
+  function handleChange(
+    field,
+    value
+  ) {
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(students)
+    setFormData(
+      (prev) => ({
+
+        ...prev,
+
+        [field]: value,
+      })
     );
-
-  }, [students]);
-
-  useEffect(() => {
-
-    localStorage.setItem(
-      TURMAS_KEY,
-      JSON.stringify(
-        turmasDisponiveis
-      )
-    );
-
-  }, [turmasDisponiveis]);
+  }
 
   const filteredStudents =
     useMemo(() => {
@@ -241,70 +242,13 @@ export default function Alunos() {
       search,
     ]);
 
-  function calculateAge(date) {
-
-    if (!date) {
-      return "-";
-    }
-
-    const today =
-      new Date();
-
-    const birthDate =
-      new Date(date);
-
-    let age =
-      today.getFullYear() -
-      birthDate.getFullYear();
-
-    const monthDiff =
-      today.getMonth() -
-      birthDate.getMonth();
-
-    if (
-
-      monthDiff < 0 ||
-
-      (
-        monthDiff === 0 &&
-        today.getDate() <
-          birthDate.getDate()
-      )
-    ) {
-
-      age--;
-    }
-
-    return `${age} anos`;
-  }
-
   function resetForm() {
 
     setEditingStudentId(null);
 
-    setNome("");
-
-    setEtapa("Berçário I");
-
-    setTurma("");
-
-    setNovaTurma("");
-
-    setResponsavelPrincipalId("");
-
-    setResponsavelSecundarioId("");
-
-    setDdi("+55");
-
-    setDdd("");
-
-    setTelefone("");
-
-    setNascimento("");
-
-    setTurno("Integral");
-
-    setStatus("Ativo");
+    setFormData(
+      initialFormData
+    );
   }
 
   function openNewStudentModal() {
@@ -320,39 +264,54 @@ export default function Alunos() {
 
     loadResponsaveis();
 
-    setEditingStudentId(student.id);
-
-    setNome(student.nome);
-
-    setEtapa(student.etapa);
-
-    setTurma(student.turma);
-
-    setResponsavelPrincipalId(
-      student.responsavelPrincipalId
+    setEditingStudentId(
+      student.id
     );
 
-    setResponsavelSecundarioId(
-      student.responsavelSecundarioId
-    );
+    setFormData({
 
-    setDdi(student.ddi);
+      nome:
+        student.nome || "",
 
-    setDdd(student.ddd);
+      etapa:
+        student.etapa || "",
 
-    setTelefone(student.telefone);
+      turma:
+        student.turma || "",
 
-    setNascimento(student.nascimento);
+      novaTurma: "",
 
-    setTurno(student.turno);
+      responsavelPrincipalId:
+        student.responsavelPrincipalId || "",
 
-    setStatus(student.status);
+      responsavelSecundarioId:
+        student.responsavelSecundarioId || "",
+
+      ddi:
+        student.ddi || "+55",
+
+      ddd:
+        student.ddd || "",
+
+      telefone:
+        student.telefone || "",
+
+      nascimento:
+        student.nascimento || "",
+
+      turno:
+        student.turno || "Integral",
+
+      status:
+        student.status || "Ativo",
+    });
 
     setIsModalOpen(true);
   }
-    function handleAddTurma() {
 
-    if (!novaTurma) {
+  function handleAddTurma() {
+
+    if (!formData.novaTurma) {
       return;
     }
 
@@ -361,7 +320,7 @@ export default function Alunos() {
         (item) =>
 
           item.toLowerCase() ===
-          novaTurma.toLowerCase()
+          formData.novaTurma.toLowerCase()
       );
 
     if (alreadyExists) {
@@ -376,13 +335,19 @@ export default function Alunos() {
     setTurmasDisponiveis(
       (prev) => [
         ...prev,
-        novaTurma,
+        formData.novaTurma,
       ]
     );
 
-    setTurma(novaTurma);
+    handleChange(
+      "turma",
+      formData.novaTurma
+    );
 
-    setNovaTurma("");
+    handleChange(
+      "novaTurma",
+      ""
+    );
   }
 
   function handleRemoveTurma(turmaNome) {
@@ -410,8 +375,14 @@ export default function Alunos() {
         )
     );
 
-    if (turma === turmaNome) {
-      setTurma("");
+    if (
+      formData.turma === turmaNome
+    ) {
+
+      handleChange(
+        "turma",
+        ""
+      );
     }
   }
 
@@ -429,64 +400,57 @@ export default function Alunos() {
       return;
     }
 
+    const updatedStudents =
+      deleteStudent(id);
+
     setStudents(
-      (prev) =>
-        prev.filter(
-          (student) =>
-            student.id !== id
-        )
+      updatedStudents
     );
   }
 
-  function toggleStatus(id) {
+  function handleToggleStatus(id) {
+
+    const updatedStudents =
+      toggleStudentStatus(id);
 
     setStudents(
-      (prev) =>
-
-        prev.map(
-          (student) => {
-
-            if (
-              student.id !== id
-            ) {
-
-              return student;
-            }
-
-            return {
-
-              ...student,
-
-              status:
-                student.status ===
-                "Ativo"
-
-                  ? "Inativo"
-
-                  : "Ativo",
-            };
-          }
-        )
+      updatedStudents
     );
+  }
+
+  function validateForm() {
+
+    if (!formData.nome) {
+
+      return "Informe o nome do aluno.";
+    }
+
+    if (!formData.nascimento) {
+
+      return "Informe a data de nascimento.";
+    }
+
+    if (
+      !formData.responsavelPrincipalId
+    ) {
+
+      return "Selecione um responsável principal.";
+    }
+
+    return null;
   }
 
   function handleSubmit(e) {
 
     e.preventDefault();
 
-    if (
-      !nome ||
-      !etapa ||
-      !turma ||
-      !responsavelPrincipalId ||
-      !ddi ||
-      !ddd ||
-      !telefone ||
-      !nascimento
-    ) {
+    const validationError =
+      validateForm();
+
+    if (validationError) {
 
       alert(
-        "Preencha todos os campos."
+        validationError
       );
 
       return;
@@ -496,77 +460,50 @@ export default function Alunos() {
       responsaveisDisponiveis.find(
         (item) =>
           item.id ===
-          responsavelPrincipalId
+          formData.responsavelPrincipalId
       );
 
     const responsavelSecundario =
       responsaveisDisponiveis.find(
         (item) =>
           item.id ===
-          responsavelSecundarioId
+          formData.responsavelSecundarioId
       );
 
     const studentData = {
 
       id:
-        editingStudentId ||
-        crypto.randomUUID(),
+        editingStudentId,
 
-      nome,
-
-      etapa,
-
-      turma,
-
-      responsavelPrincipalId,
+      ...formData,
 
       responsavelPrincipalNome:
         responsavelPrincipal?.nome || "",
 
-      responsavelSecundarioId,
-
       responsavelSecundarioNome:
         responsavelSecundario?.nome || "",
-
-      ddi,
-
-      ddd,
-
-      telefone,
-
-      nascimento,
-
-      turno,
-
-      status,
     };
+
+    let updatedStudents = [];
 
     if (editingStudentId) {
 
-      setStudents(
-        (prev) =>
-
-          prev.map(
-            (student) =>
-
-              student.id ===
-              editingStudentId
-
-                ? studentData
-
-                : student
-          )
-      );
+      updatedStudents =
+        updateStudent(
+          studentData
+        );
 
     } else {
 
-      setStudents(
-        (prev) => [
-          ...prev,
-          studentData,
-        ]
-      );
+      updatedStudents =
+        createStudent(
+          studentData
+        );
     }
+
+    setStudents(
+      updatedStudents
+    );
 
     resetForm();
 
@@ -656,7 +593,7 @@ export default function Alunos() {
         }
 
         toggleStatus={
-          toggleStatus
+          handleToggleStatus
         }
 
         handleRemoveStudent={
@@ -678,22 +615,10 @@ export default function Alunos() {
           setIsModalOpen
         }
 
-        nome={nome}
+        formData={formData}
 
-        setNome={setNome}
-
-        etapa={etapa}
-
-        setEtapa={setEtapa}
-
-        turma={turma}
-
-        setTurma={setTurma}
-
-        novaTurma={novaTurma}
-
-        setNovaTurma={
-          setNovaTurma
+        handleChange={
+          handleChange
         }
 
         turmasDisponiveis={
@@ -708,51 +633,9 @@ export default function Alunos() {
           handleRemoveTurma
         }
 
-        responsavelPrincipalId={
-          responsavelPrincipalId
-        }
-
-        setResponsavelPrincipalId={
-          setResponsavelPrincipalId
-        }
-
-        responsavelSecundarioId={
-          responsavelSecundarioId
-        }
-
-        setResponsavelSecundarioId={
-          setResponsavelSecundarioId
-        }
-
         responsaveisDisponiveis={
           responsaveisDisponiveis
         }
-
-        ddi={ddi}
-
-        setDdi={setDdi}
-
-        ddd={ddd}
-
-        setDdd={setDdd}
-
-        telefone={telefone}
-
-        setTelefone={setTelefone}
-
-        nascimento={nascimento}
-
-        setNascimento={
-          setNascimento
-        }
-
-        turno={turno}
-
-        setTurno={setTurno}
-
-        status={status}
-
-        setStatus={setStatus}
 
         handleSubmit={
           handleSubmit

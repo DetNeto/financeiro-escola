@@ -1,34 +1,20 @@
-import Select from "react-select";
-
 import {
   X,
 } from "lucide-react";
 
-import {
-
-  paises,
-
-  estadosCivis,
-
-  tiposResponsavel,
-
-} from "./constants";
-
-export default function ResponsaveisModal({
-
-  responsaveis,
+export default function ResponsavelModal({
 
   isModalOpen,
 
   setIsModalOpen,
 
-  editingResponsavelId,
-
   formData,
 
-  setFormData,
+  handleChange,
 
   handleSubmit,
+
+  editingResponsavelId,
 
 }) {
 
@@ -36,104 +22,13 @@ export default function ResponsaveisModal({
     return null;
   }
 
-  function handleChange(
-    field,
-    value
-  ) {
-
-    setFormData(
-      (prev) => ({
-        ...prev,
-        [field]: value,
-      })
-    );
-  }
-
-  const selectStyles = {
-
-    control: (base) => ({
-
-      ...base,
-
-      backgroundColor:
-        "#27272a",
-
-      borderColor:
-        "#3f3f46",
-
-      borderRadius:
-        "0.75rem",
-
-      minHeight:
-        "58px",
-
-      boxShadow:
-        "none",
-
-      color:
-        "white",
-    }),
-
-    menu: (base) => ({
-
-      ...base,
-
-      backgroundColor:
-        "#18181b",
-
-      border:
-        "1px solid #3f3f46",
-
-      overflow:
-        "hidden",
-    }),
-
-    option: (
-      base,
-      state
-    ) => ({
-
-      ...base,
-
-      backgroundColor:
-        state.isFocused
-
-          ? "#2563eb"
-
-          : "#18181b",
-
-      color:
-        "white",
-
-      cursor:
-        "pointer",
-    }),
-
-    singleValue: (
-      base
-    ) => ({
-
-      ...base,
-
-      color:
-        "white",
-    }),
-
-    input: (base) => ({
-
-      ...base,
-
-      color:
-        "white",
-    }),
-  };
-
   return (
 
     <div className="
       fixed inset-0
 
       bg-black/70
+
       backdrop-blur-sm
 
       flex
@@ -141,6 +36,8 @@ export default function ResponsaveisModal({
       justify-center
 
       z-50
+
+      p-4
     ">
 
       <div className="
@@ -151,21 +48,22 @@ export default function ResponsaveisModal({
         rounded-3xl
 
         w-full
-        max-w-7xl
+        max-w-6xl
 
-        max-h-[90vh]
+        max-h-[95vh]
 
         overflow-y-auto
-
-        p-8
       ">
 
         <div className="
           flex
-          justify-between
           items-center
+          justify-between
 
-          mb-8
+          p-8
+
+          border-b
+          border-zinc-800
         ">
 
           <div>
@@ -187,35 +85,28 @@ export default function ResponsaveisModal({
 
             <p className="
               text-zinc-400
-              mt-2
+              mt-1
             ">
 
-              Cadastro institucional.
+              Dados legais, financeiros e contato institucional.
 
             </p>
 
           </div>
 
           <button
-            onClick={() => {
-
-              setIsModalOpen(
-                false
-              );
-            }}
+            onClick={() =>
+              setIsModalOpen(false)
+            }
             className="
-              p-3
-
-              rounded-xl
-
-              bg-zinc-800
-              hover:bg-zinc-700
+              text-zinc-400
+              hover:text-white
 
               transition
             "
           >
 
-            <X size={22} />
+            <X size={28} />
 
           </button>
 
@@ -224,548 +115,915 @@ export default function ResponsaveisModal({
         <form
           onSubmit={handleSubmit}
           className="
-            grid
-            grid-cols-1
-            md:grid-cols-3
-            gap-5
+            p-8
+            space-y-8
           "
         >
 
-          <input
-            type="text"
-            placeholder="Nome completo"
-            value={formData.nome}
-            onChange={(e) =>
-              handleChange(
-                "nome",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          />
-
-          <select
-            value={formData.tipo}
-            onChange={(e) =>
-              handleChange(
-                "tipo",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          >
-
-            {tiposResponsavel.map(
-              (item) => (
-
-                <option
-                  key={item}
-                  value={item}
-                >
-
-                  {item}
-
-                </option>
-              )
-            )}
-
-          </select>
-
-          <input
-            type="text"
-            placeholder="CPF"
-            value={formData.cpf}
-            onChange={(e) =>
-              handleChange(
-                "cpf",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          />
-
-          <input
-            type="text"
-            placeholder="RG"
-            value={formData.rg}
-            onChange={(e) =>
-              handleChange(
-                "rg",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          />
-
-          <select
-            value={formData.estadoCivil}
-            onChange={(e) =>
-              handleChange(
-                "estadoCivil",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          >
-
-            {estadosCivis.map(
-              (item) => (
-
-                <option
-                  key={item}
-                  value={item}
-                >
-
-                  {item}
-
-                </option>
-              )
-            )}
-
-          </select>
-
-          <input
-            type="text"
-            placeholder="Nacionalidade"
-            value={
-              formData.nacionalidade
-            }
-            onChange={(e) =>
-              handleChange(
-                "nacionalidade",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          />
-
-          <input
-            type="text"
-            placeholder="Profissão"
-            value={formData.profissao}
-            onChange={(e) =>
-              handleChange(
-                "profissao",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          />
-
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={formData.email}
-            onChange={(e) =>
-              handleChange(
-                "email",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          />
-
-          <select
-            value={
-              formData.autorizacao
-            }
-            onChange={(e) =>
-              handleChange(
-                "autorizacao",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
-
-              rounded-xl
-
-              px-4 py-4
-            "
-          >
-
-            <option value="
-              Autorizado Retirada
-            ">
-              Autorizado Retirada
-            </option>
-
-            <option value="
-              Não Autorizado
-            ">
-              Não Autorizado
-            </option>
-
-          </select>
-
           <div className="
-            md:col-span-3
-
             grid
             grid-cols-1
-            md:grid-cols-4
-
-            gap-3
+            md:grid-cols-2
+            gap-6
           ">
 
-            <Select
-              options={paises}
-              value={
-                paises.find(
-                  (pais) =>
-                    pais.value ===
-                    formData.ddi
-                )
-              }
-              onChange={(selected) =>
-                handleChange(
-                  "ddi",
-                  selected.value
-                )
-              }
-              styles={selectStyles}
-            />
-            <input
-              type="text"
-              placeholder="DDD"
-              value={formData.ddd}
-              onChange={(e) =>
-                handleChange(
-                  "ddd",
-                  e.target.value
-                )
-              }
-              className="
-                bg-zinc-800
-                border border-zinc-700
+            <div>
 
-                rounded-xl
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
 
-                px-4 py-4
-              "
-            />
+                Nome Completo *
 
-            <input
-              type="text"
-              placeholder="Telefone"
-              value={
-                formData.telefone
-              }
-              onChange={(e) =>
-                handleChange(
-                  "telefone",
-                  e.target.value
-                )
-              }
-              className="
-                bg-zinc-800
-                border border-zinc-700
+              </label>
 
-                rounded-xl
+              <input
+                type="text"
+                value={formData.nome}
+                onChange={(e) =>
 
-                px-4 py-4
-              "
-            />
+                  handleChange(
+                    "nome",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
 
-            <input
-              type="text"
-              placeholder="Telefone secundário"
-              value={
-                formData.telefone2
-              }
-              onChange={(e) =>
-                handleChange(
-                  "telefone2",
-                  e.target.value
-                )
-              }
-              className="
-                bg-zinc-800
-                border border-zinc-700
+                  bg-zinc-950
 
-                rounded-xl
+                  border
+                  border-zinc-800
 
-                px-4 py-4
-              "
-            />
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Tipo
+
+              </label>
+
+              <select
+                value={formData.tipo}
+                onChange={(e) =>
+
+                  handleChange(
+                    "tipo",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              >
+
+                <option>
+                  Ambos
+                </option>
+
+                <option>
+                  Financeiro
+                </option>
+
+                <option>
+                  Pedagógico
+                </option>
+
+              </select>
+
+            </div>
 
           </div>
 
-          <input
-            type="text"
-            placeholder="Endereço"
-            value={
-              formData.endereco
-            }
-            onChange={(e) =>
-              handleChange(
-                "endereco",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+          <div className="
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-6
+          ">
 
-              rounded-xl
+            <div>
 
-              px-4 py-4
-            "
-          />
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
 
-          <input
-            type="text"
-            placeholder="Número"
-            value={
-              formData.numero
-            }
-            onChange={(e) =>
-              handleChange(
-                "numero",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+                CPF *
 
-              rounded-xl
+              </label>
 
-              px-4 py-4
-            "
-          />
+              <input
+                type="text"
+                value={formData.cpf}
+                onChange={(e) =>
 
-          <input
-            type="text"
-            placeholder="Bairro"
-            value={
-              formData.bairro
-            }
-            onChange={(e) =>
-              handleChange(
-                "bairro",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+                  handleChange(
+                    "cpf",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
 
-              rounded-xl
+                  bg-zinc-950
 
-              px-4 py-4
-            "
-          />
+                  border
+                  border-zinc-800
 
-          <input
-            type="text"
-            placeholder="Cidade"
-            value={
-              formData.cidade
-            }
-            onChange={(e) =>
-              handleChange(
-                "cidade",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+                  rounded-2xl
 
-              rounded-xl
+                  px-4
+                  py-3
 
-              px-4 py-4
-            "
-          />
+                  outline-none
 
-          <input
-            type="text"
-            placeholder="CEP"
-            value={
-              formData.cep
-            }
-            onChange={(e) =>
-              handleChange(
-                "cep",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+                  focus:border-blue-500
+                "
+              />
 
-              rounded-xl
+            </div>
 
-              px-4 py-4
-            "
-          />
+            <div>
 
-          <input
-            type="text"
-            placeholder="Convênio"
-            value={
-              formData.convenio
-            }
-            onChange={(e) =>
-              handleChange(
-                "convenio",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
 
-              rounded-xl
+                RG
 
-              px-4 py-4
-            "
-          />
+              </label>
 
-          <textarea
-            placeholder="
-              Observações institucionais
-            "
-            value={
-              formData.observacoes
-            }
-            onChange={(e) =>
-              handleChange(
-                "observacoes",
-                e.target.value
-              )
-            }
-            rows={5}
-            className="
-              md:col-span-3
+              <input
+                type="text"
+                value={formData.rg}
+                onChange={(e) =>
 
-              bg-zinc-800
-              border border-zinc-700
+                  handleChange(
+                    "rg",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
 
-              rounded-xl
+                  bg-zinc-950
 
-              px-4 py-4
+                  border
+                  border-zinc-800
 
-              resize-none
-            "
-          />
+                  rounded-2xl
 
-          <select
-            value={formData.status}
-            onChange={(e) =>
-              handleChange(
-                "status",
-                e.target.value
-              )
-            }
-            className="
-              bg-zinc-800
-              border border-zinc-700
+                  px-4
+                  py-3
 
-              rounded-xl
+                  outline-none
 
-              px-4 py-4
-            "
-          >
+                  focus:border-blue-500
+                "
+              />
 
-            <option value="Ativo">
-              Ativo
-            </option>
+            </div>
 
-            <option value="Inativo">
-              Inativo
-            </option>
+            <div>
 
-          </select>
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Estado Civil
+
+              </label>
+
+              <select
+                value={
+                  formData.estadoCivil
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "estadoCivil",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              >
+
+                <option>
+                  Solteiro(a)
+                </option>
+
+                <option>
+                  Casado(a)
+                </option>
+
+                <option>
+                  Divorciado(a)
+                </option>
+
+                <option>
+                  Viúvo(a)
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
 
           <div className="
-            md:col-span-3
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-6
           ">
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Profissão
+
+              </label>
+
+              <input
+                type="text"
+                value={
+                  formData.profissao
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "profissao",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Nacionalidade
+
+              </label>
+
+              <input
+                type="text"
+                value={
+                  formData.nacionalidade
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "nacionalidade",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                E-mail
+
+              </label>
+
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+
+                  handleChange(
+                    "email",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+          </div>
+
+          <div className="
+            grid
+            grid-cols-1
+            md:grid-cols-4
+            gap-6
+          ">
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                DDI
+
+              </label>
+
+              <input
+                type="text"
+                value={formData.ddi}
+                onChange={(e) =>
+
+                  handleChange(
+                    "ddi",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                DDD
+
+              </label>
+
+              <input
+                type="text"
+                value={formData.ddd}
+                onChange={(e) =>
+
+                  handleChange(
+                    "ddd",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                Telefone
+
+              </label>
+
+              <input
+                type="text"
+                value={
+                  formData.telefone
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "telefone",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <label className="
+                text-sm
+                text-zinc-400
+              ">
+
+                WhatsApp
+
+              </label>
+
+              <input
+                type="text"
+                value={
+                  formData.whatsapp
+                }
+                onChange={(e) =>
+
+                  handleChange(
+                    "whatsapp",
+                    e.target.value
+                  )
+                }
+                className="
+                  w-full
+                  mt-2
+
+                  bg-zinc-950
+
+                  border
+                  border-zinc-800
+
+                  rounded-2xl
+
+                  px-4
+                  py-3
+
+                  outline-none
+
+                  focus:border-blue-500
+                "
+              />
+
+            </div>
+
+          </div>
+
+          <div className="
+            space-y-6
+          ">
+
+            <h3 className="
+              text-2xl
+              font-bold
+            ">
+
+              Endereço
+
+            </h3>
+
+            <div className="
+              grid
+              grid-cols-1
+              md:grid-cols-4
+              gap-6
+            ">
+
+              <div>
+
+                <label className="
+                  text-sm
+                  text-zinc-400
+                ">
+
+                  CEP
+
+                </label>
+
+                <input
+                  type="text"
+                  value={formData.cep}
+                  onChange={(e) =>
+
+                    handleChange(
+                      "cep",
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-2
+
+                    bg-zinc-950
+
+                    border
+                    border-zinc-800
+
+                    rounded-2xl
+
+                    px-4
+                    py-3
+
+                    outline-none
+
+                    focus:border-blue-500
+                  "
+                />
+
+              </div>
+
+            </div>
+
+            <div className="
+              grid
+              grid-cols-1
+              md:grid-cols-3
+              gap-6
+            ">
+
+              <div className="
+                md:col-span-2
+              ">
+
+                <label className="
+                  text-sm
+                  text-zinc-400
+                ">
+
+                  Endereço
+
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    formData.endereco
+                  }
+                  onChange={(e) =>
+
+                    handleChange(
+                      "endereco",
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-2
+
+                    bg-zinc-950
+
+                    border
+                    border-zinc-800
+
+                    rounded-2xl
+
+                    px-4
+                    py-3
+
+                    outline-none
+
+                    focus:border-blue-500
+                  "
+                />
+
+              </div>
+
+              <div>
+
+                <label className="
+                  text-sm
+                  text-zinc-400
+                ">
+
+                  Número
+
+                </label>
+
+                <input
+                  type="text"
+                  value={formData.numero}
+                  onChange={(e) =>
+
+                    handleChange(
+                      "numero",
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-2
+
+                    bg-zinc-950
+
+                    border
+                    border-zinc-800
+
+                    rounded-2xl
+
+                    px-4
+                    py-3
+
+                    outline-none
+
+                    focus:border-blue-500
+                  "
+                />
+
+              </div>
+
+            </div>
+
+            <div className="
+              grid
+              grid-cols-1
+              md:grid-cols-2
+              gap-6
+            ">
+
+              <div>
+
+                <label className="
+                  text-sm
+                  text-zinc-400
+                ">
+
+                  Bairro
+
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    formData.bairro
+                  }
+                  onChange={(e) =>
+
+                    handleChange(
+                      "bairro",
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-2
+
+                    bg-zinc-950
+
+                    border
+                    border-zinc-800
+
+                    rounded-2xl
+
+                    px-4
+                    py-3
+
+                    outline-none
+
+                    focus:border-blue-500
+                  "
+                />
+
+              </div>
+
+              <div>
+
+                <label className="
+                  text-sm
+                  text-zinc-400
+                ">
+
+                  Cidade
+
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    formData.cidade
+                  }
+                  onChange={(e) =>
+
+                    handleChange(
+                      "cidade",
+                      e.target.value
+                    )
+                  }
+                  className="
+                    w-full
+                    mt-2
+
+                    bg-zinc-950
+
+                    border
+                    border-zinc-800
+
+                    rounded-2xl
+
+                    px-4
+                    py-3
+
+                    outline-none
+
+                    focus:border-blue-500
+                  "
+                />
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div className="
+            flex
+            justify-end
+            gap-4
+            pt-4
+          ">
+
+            <button
+              type="button"
+              onClick={() =>
+                setIsModalOpen(false)
+              }
+              className="
+                px-6
+                py-3
+
+                rounded-2xl
+
+                bg-zinc-800
+                hover:bg-zinc-700
+
+                transition
+              "
+            >
+
+              Cancelar
+
+            </button>
 
             <button
               type="submit"
               className="
-                w-full
+                px-6
+                py-3
+
+                rounded-2xl
 
                 bg-blue-600
                 hover:bg-blue-500
 
                 transition
 
-                py-5
-
-                rounded-2xl
-
                 font-bold
-                text-lg
               "
             >
 
-              {
-                editingResponsavelId
-
-                  ? "Salvar Alterações"
-
-                  : "Salvar Responsável"
-              }
+              Salvar Responsável
 
             </button>
 
@@ -777,4 +1035,4 @@ export default function ResponsaveisModal({
 
     </div>
   );
-}            
+}

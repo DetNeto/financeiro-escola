@@ -45,54 +45,137 @@ export default function AnaliseFinanceira() {
       contas.forEach(
         (conta) => {
 
-          const key =
-            `${String(
-              conta.month
-            ).padStart(2, "0")}/${conta.year}`;
+          if (!conta.dueDate) {
+  return;
+}
 
-          if (!grouped[key]) {
-
-            grouped[key] = {
-              month: key,
-              receitas: 0,
-              despesas: 0,
-              saldo: 0,
-            };
-          }
-
-          if (
-            conta.type ===
-            "receita"
-          ) {
-
-            grouped[
-              key
-            ].receitas +=
-              conta.value;
-
-          } else {
-
-            grouped[
-              key
-            ].despesas +=
-              conta.value;
-          }
-
-          grouped[
-            key
-          ].saldo =
-            grouped[key]
-              .receitas -
-            grouped[key]
-              .despesas;
-        }
+    const dueDate =
+      new Date(
+        conta.dueDate
       );
 
-      return Object.values(
-        grouped
-      );
+    const month =
+      String(
+        dueDate.getMonth() + 1
+      ).padStart(2, "0");
 
-    }, [contas]);
+    const year =
+      dueDate.getFullYear();
+
+    const key =
+      `${month}/${year}`;
+
+    if (!grouped[key]) {
+
+  grouped[key] = {
+
+    month: key,
+
+    receitas: 0,
+
+    despesas: 0,
+
+    saldo: 0,
+  };
+}  
+
+              if (
+                conta.type?.toLowerCase() ===
+              "receita"
+              ) {
+
+                grouped[
+                  key
+                ].receitas +=
+                  conta.value;
+
+              } else {
+
+                grouped[
+                  key
+                ].despesas +=
+                  conta.value;
+              }
+
+              grouped[
+                key
+              ].saldo =
+                grouped[key]
+                  .receitas -
+                grouped[key]
+                  .despesas;
+            }
+          );
+
+          return Object
+  .values(grouped)
+  .sort(
+    (a, b) => {
+
+      const [
+        monthA,
+        yearA,
+      ] =
+        a.month
+          .split("/");
+
+      const [
+        monthB,
+        yearB,
+      ] =
+        b.month
+          .split("/");
+
+      const dateA =
+        new Date(
+          Number(yearA),
+          Number(monthA) - 1
+        );
+
+      const dateB =
+        new Date(
+          Number(yearB),
+          Number(monthB) - 1
+        );
+
+      return (
+        dateA - dateB
+      );
+    }
+  )
+  .map(
+  (
+    item,
+    index,
+    array
+  ) => {
+
+    const previousSaldo =
+      index === 0
+
+        ? 0
+
+        : array[
+            index - 1
+          ].saldo;
+
+    return {
+
+      ...item,
+
+      saldo:
+
+        previousSaldo +
+
+        (
+          item.receitas -
+          item.despesas
+        ),
+    };
+  }
+);
+
+        }, [contas]);
 
   const categoryData =
     useMemo(() => {
@@ -102,7 +185,7 @@ export default function AnaliseFinanceira() {
       contas
         .filter(
           (conta) =>
-            conta.type ===
+            conta.type?.toLowerCase() ===
             "despesa"
         )
         .forEach(
@@ -140,8 +223,8 @@ export default function AnaliseFinanceira() {
     contas
       .filter(
         (conta) =>
-          conta.type ===
-          "receita"
+          conta.type?.toLowerCase() ===
+    "receita"
       )
       .reduce(
         (acc, conta) =>
@@ -153,8 +236,8 @@ export default function AnaliseFinanceira() {
     contas
       .filter(
         (conta) =>
-          conta.type ===
-          "despesa"
+          conta.type?.toLowerCase() ===
+    "despesa"
       )
       .reduce(
         (acc, conta) =>
